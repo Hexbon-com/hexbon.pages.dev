@@ -2,6 +2,8 @@
 
 A secure, client-side decryption tool for accessing your <a href="https://hexbon.com" target="_blank">Hexbon.com</a> encrypted data. This tool serves as a redundancy solution to ensure you always have access to your encrypted information, even if the main Hexbon service is unavailable.
 
+**🔐 Security Notice**: Always verify you're using the official hosted versions. Never enter your encryption key on suspicious or unofficial sites.
+
 ## Table of Contents
 
 - 🔐 [Overview](#-overview)
@@ -290,4 +292,3 @@ This project is licensed under the MIT License. See the source code for full lic
 
 **⚠️ Important**: This tool is designed for data recovery and redundancy. For creating, editing, or managing your encrypted data, please use the main Hexbon platform at <a href="https://hexbon.com" target="_blank">hexbon.com</a>.
 
-**🔐 Security Notice**: Always verify you're using the official hosted versions. Never enter your encryption key on suspicious or unofficial sites.
