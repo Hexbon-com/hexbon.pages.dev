@@ -2,17 +2,74 @@
 
 A secure, client-side decryption tool for accessing your Hexbon encrypted data. This tool serves as a redundancy solution to ensure you always have access to your encrypted information, even if the main Hexbon service is unavailable.
 
+## Table of Contents
+
+- [🔐 Overview](#-overview)
+- [🌐 Live Access](#-live-access)
+- [🏠 Local Development](#-local-development)
+- [🛡️ Security Features](#️-security-features)
+- [🔧 How It Works](#-how-it-works)
+- [📊 Data Sources](#-data-sources)
+- [🚀 Usage Instructions](#-usage-instructions)
+- [🎨 Features](#-features)
+- [🔒 Privacy & Security](#-privacy--security)
+- [🛠️ Technical Stack](#️-technical-stack)
+- [🌐 Redundancy Strategy](#-redundancy-strategy)
+- [📱 Browser Compatibility](#-browser-compatibility)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [🆘 Support](#-support)
+
 ## 🔐 Overview
 
-The Hexbon Decryption Tool is a standalone web application that allows you to decrypt and view your encrypted data from [Hexbon.com](https://hexbon.com). All decryption happens locally in your browser - your encryption keys and data are never sent to any server.
+The Hexbon Decryption Tool is a standalone web application that allows you to decrypt and view your encrypted data from [Hexbon.com](https://hexbon.com){:target="_blank"}. All decryption happens locally in your browser - your encryption keys and data are never sent to any server.
 
 ## 🌐 Live Access
 
 This tool is available through multiple redundancy hosting options:
 
-- **Primary**: [hexbon.pages.dev](https://hexbon.pages.dev) (Cloudflare Pages)
-- **Backup**: [ricu23.github.io/hexbon.pages.dev](https://ricu23.github.io/hexbon.pages.dev) (GitHub Pages)
-- **Source**: [GitHub Repository](https://github.com/Ricu23/hexbon.pages.dev)
+- **Primary**: [hexbon.pages.dev](https://hexbon.pages.dev){:target="_blank"} (Cloudflare Pages)
+- **Backup**: [ricu23.github.io/hexbon.pages.dev](https://ricu23.github.io/hexbon.pages.dev){:target="_blank"} (GitHub Pages)
+- **Source**: [GitHub Repository](https://github.com/Ricu23/hexbon.pages.dev){:target="_blank"}
+- **Local Development**: [See setup instructions](#-local-development) for running locally
+
+## 🏠 Local Development
+
+### Simple Local Setup
+
+Running this project locally is incredibly simple - no build tools, dependencies, or complex setup required:
+
+1. **Download Files**: Get `index.html` and `script.js` from this repository
+2. **Same Folder**: Place both files in the same directory
+3. **Open**: Double-click `index.html` or open it in any web browser
+4. **That's It**: The tool is now running locally on your machine
+
+```bash
+# Option 1: Clone with Git
+git clone https://github.com/Ricu23/hexbon.pages.dev.git
+cd hexbon.pages.dev
+# Then open index.html in your browser
+
+# Option 2: Download ZIP
+# Click here to download:
+```
+**[📥 Download ZIP](https://github.com/Ricu23/hexbon.pages.dev/archive/refs/heads/main.zip){:target="_blank"}**
+```bash
+# Extract the ZIP file and open index.html in your browser
+
+# Option 3: Manual download
+mkdir hexbon-local
+cd hexbon-local
+# Download index.html and script.js individually
+# Then open index.html in your browser
+```
+
+**Benefits of Local Setup**:
+- ✅ Complete offline operation
+- ✅ No internet dependency after initial download
+- ✅ Full control over your environment
+- ✅ No hosting service dependencies
+- ✅ Enhanced privacy and security
 
 ## 🛡️ Security Features
 
@@ -74,7 +131,7 @@ The Reference Key (RK) is currently **universal** across all Hexbon accounts. Th
 You can obtain encrypted data from several sources:
 
 ### 1. Hexbon Dashboard Export
-- Log into [Hexbon.com](https://hexbon.com)
+- Log into [Hexbon.com](https://hexbon.com){:target="_blank"}
 - Navigate to Settings → Export Data
 - Download your encrypted JSON backup
 
@@ -91,8 +148,8 @@ You can obtain encrypted data from several sources:
 
 ### Step 1: Access the Tool
 Visit any of the hosted versions:
-- [hexbon.pages.dev](https://hexbon.pages.dev)
-- [GitHub Pages Mirror](https://ricu23.github.io/hexbon.pages.dev)
+- [hexbon.pages.dev](https://hexbon.pages.dev){:target="_blank"}
+- [GitHub Pages Mirror](https://ricu23.github.io/hexbon.pages.dev){:target="_blank"}
 
 ### Step 2: Enter Your Credentials
 1. **Encryption Key**: Your personal encryption password from Hexbon
@@ -162,43 +219,7 @@ This tool contains **absolutely no tracking, analytics, or data collection scrip
 - **Hosting**: Cloudflare Pages + GitHub Pages
 - **Icons**: Heroicons (SVG)
 
-## 🏠 Local Development
-
-### Simple Local Setup
-
-Running this project locally is incredibly simple - no build tools, dependencies, or complex setup required:
-
-1. **Download Files**: Get `index.html` and `script.js` from this repository
-2. **Same Folder**: Place both files in the same directory
-3. **Open**: Double-click `index.html` or open it in any web browser
-4. **That's It**: The tool is now running locally on your machine
-
-```bash
-# Option 1: Clone with Git
-git clone https://github.com/Ricu23/hexbon.pages.dev.git
-cd hexbon.pages.dev
-# Then open index.html in your browser
-
-# Option 2: Download ZIP
-# Visit: https://github.com/Ricu23/hexbon.pages.dev/archive/refs/heads/main.zip
-# Extract the ZIP file
-# Open index.html in your browser
-
-# Option 3: Manual download
-mkdir hexbon-local
-cd hexbon-local
-# Download index.html and script.js individually
-# Then open index.html in your browser
-```
-
-**Benefits of Local Setup**:
-- ✅ Complete offline operation
-- ✅ No internet dependency after initial download
-- ✅ Full control over your environment
-- ✅ No hosting service dependencies
-- ✅ Enhanced privacy and security
-
-## 🌐 Redundancy Strategy
+##  Redundancy Strategy
 
 This tool provides multiple layers of redundancy:
 
@@ -251,11 +272,11 @@ This project is licensed under the MIT License. See the source code for full lic
 - Clear browser cache and try again
 
 ### Contact
-- **Main Platform**: [Hexbon.com](https://hexbon.com)
-- **GitHub Issues**: [Report bugs or feature requests](https://github.com/Ricu23/hexbon.pages.dev/issues)
+- **Main Platform**: [Hexbon.com](https://hexbon.com){:target="_blank"}
+- **GitHub Issues**: [Report bugs or feature requests](https://github.com/Ricu23/hexbon.pages.dev/issues){:target="_blank"}
 
 ---
 
-**⚠️ Important**: This tool is designed for data recovery and redundancy. For creating, editing, or managing your encrypted data, please use the main Hexbon platform at [hexbon.com](https://hexbon.com).
+**⚠️ Important**: This tool is designed for data recovery and redundancy. For creating, editing, or managing your encrypted data, please use the main Hexbon platform at [hexbon.com](https://hexbon.com){:target="_blank"}.
 
 **🔐 Security Notice**: Always verify you're using the official hosted versions. Never enter your encryption key on suspicious or unofficial sites.
