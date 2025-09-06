@@ -138,9 +138,18 @@ version:base64_salt:base64_iv:base64_ciphertext
 ```
 
 **Example:**
+
+**Encrypted Data:**
 ```
-v1:kX9mY2L8vB3nA5s7dQ1wPg==:8HjL9kN3mF2sA1wQ:9sK3mP8vN7lQ2...
+v1:wZIjnDj8KMmOVmTv4koLDg==:kOJAMS74rivuJL9F:+4yCmLjV5D55L/B/y7r9ngTtovL/sHJ2KaAh8cbkK1Gt4D//WnRMN8QnKEXEpLHMBzVDV+m0P7pitBdOInaBksCczlXIaWgIOKFU2/V58A35yyJ3aAnvprDduZiRe0t2RvDx2UPG+8GI0G0muHJe9eBwYTL/O6oMqOB7gA25sBh8IAE1tdvHi6RICfjshkun0arSw4NEEE4wbKg4ZPOybj/gA+SsIPZ3fdlVE56cW8Z4w5bp6dAAMgQa9UnzejSLR0USSZH0bqDe66yDbfug+AMnt9F9GaDrTJkPLpOvMWYAzmi+c9X4pEZ7M2D4mWkmZgXsY3JpqwJdLhPe/1+zByGzChCCzA8xlKo+MJoZvbkdoFxCns+Fj5ECKHtSvkniLixxPFmCfnC8oED/XXGjXme0PxYvCKORthZpp1EDgoJ085Y3coesR7tOMftck+MXFEzy+EFr8kmYPHAnB0poMPo6bLyqw60HePK3gG5dsCzm+zl7pU8m9jHNK2qQa5Yi6yVd3qgmkmxZ4EbH0+BWhLG/o7A1WWvZucWWwVGSc4tRL0TFSHYMt09DTu/qs/MQAHRUD9f9UJF8aHGAEU59LYC6nBwui+sKlII95tiUDEZx1X24wsLMTqQmzhNYKUTFc6QS9lAG/fNv8P7mjnAiRBFj4txTNdkVNNovQcg14uLYiY/0XCn4tF3O3C5SBshXha6GAEg3yLdHQpjJBzmdLQfD7Y85rjuvxm8k8J052RN14ME5VnPqthYkHmB3UmHTsV8JijG/If8UOdquH7ChLjrSSX9VXgBfzpLUdHG0e+upBnMlNxVBwp1d/Pyw/vXSoXw8Z3t3+dCd+xT0BG/vA5Cx3MYoXRzLOeg5PW3yBzh2GqsBwyLvI2y10Xxi/Sqn5qnf34XObCrHsg8K0gYgvYspkpCBOfEGS7E5n1TVq7fnfJKH4ypsglRPkkapAFLi3CB+z4WTXJc/3shwS1PaJg==
 ```
+
+**Password:**
+```
+asd
+```
+
+*This example demonstrates the complete encrypted data format and the corresponding password needed for decryption. You can use these values to test the tool functionality.*
 
 ### Decryption Process
 
