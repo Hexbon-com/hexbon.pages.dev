@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decrypt Data - Hexbon</title>
+    <link rel="preload" href="/assets/fonts/RobotoCondensed-VariableFont_wght.ttf" as="font" type="font/woff2" crossorigin>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Hexbon" />
+    <link rel="manifest" href="/assets/favicon/site.webmanifest" />
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                // Set dark background immediately
+                document.documentElement.style.backgroundColor = '#111827';
+            } else {
+                // Ensure light mode background
+                document.documentElement.style.backgroundColor = '#ffffff';
+            }
+        })();
+    </script>
+    <style>
+        @font-face {
+            font-family: 'Roboto Condensed';
+            src: url('/assets/fonts/RobotoCondensed-VariableFont_wght.ttf') format('truetype');
+            font-weight: 100 900;
+            font-display: swap;
+        }
+
+        /* Hide sections for toggling between decrypt form and dashboard view */
+        .hidden { display: none !important; }
+        .line-clamp-2 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white dark:bg-gray-900 transition-colors duration-300" style="font-family: 'Roboto Condensed', ui-sans-serif, system-ui, sans-serif;">
+    <!-- Floating Hexbon Logo -->
+    <div class="absolute top-8 left-1/2 -translate-x-1/2 z-50 flex items-center">
+        <div class="w-12 h-12  rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-12 h-12 text-gray-900 dark:text-white" fill="currentColor" viewBox="0 0 279 187" >
+            <path d="M0 0 C2.71416824 1.14220045 4.86067021 2.21173669 7.3125 3.75 C8.31349731 4.34530518 8.31349731 4.34530518 9.3347168 4.95263672 C10.78690388 5.81952978 12.2337674 6.69538953 13.67578125 7.57910156 C16.13563178 9.08291775 18.61239662 10.55539698 21.09375 12.0234375 C29.82312643 17.20147996 38.49468002 22.45983744 47 28 C42.53910514 31.71146452 37.25279118 34.06753446 32.11132812 36.68359375 C31.37205078 37.06644531 30.63277344 37.44929688 29.87109375 37.84375 C28.86453735 38.35711914 28.86453735 38.35711914 27.83764648 38.88085938 C25.91588416 40.05122719 24.52006326 41.35043785 23 43 C18.77556613 41.45077472 14.94496324 39.37340175 11.0625 37.125 C10.46759766 36.78597656 9.87269531 36.44695313 9.25976562 36.09765625 C6.34100531 34.41976781 3.60910753 32.71793278 0.87109375 30.7421875 C-2.31491691 28.80890756 -3.37317908 28.59194934 -7 29 C-9.69550371 30.24434273 -9.69550371 30.24434273 -12.40234375 32.04296875 C-13.4476123 32.69885986 -14.49288086 33.35475098 -15.56982422 34.03051758 C-16.68115723 34.74232178 -17.79249023 35.45412598 -18.9375 36.1875 C-20.67921715 37.28605376 -22.42352595 38.38039806 -24.16821289 39.47422791 C-25.35465245 40.21807022 -26.54035793 40.96308464 -27.7253418 41.70924377 C-34.4433232 45.93062664 -41.2877701 49.9332371 -48.14428711 53.92456055 C-48.99128174 54.41996338 -49.83827637 54.91536621 -50.7109375 55.42578125 C-51.44618652 55.85286377 -52.18143555 56.27994629 -52.93896484 56.7199707 C-53.61910645 57.14238037 -54.29924805 57.56479004 -55 58 C-55.68594238 58.39556595 -56.37188477 58.7911319 -57.07861328 59.19868469 C-59.77208516 61.72383597 -59.61416068 63.45350659 -59.80322266 67.10107422 C-59.87392975 68.36023651 -59.94463684 69.6193988 -60.01748657 70.91671753 C-60.07010966 72.29590236 -60.11886838 73.67523924 -60.1640625 75.0546875 C-60.18785351 75.75282688 -60.21164452 76.45096626 -60.23615646 77.17026138 C-60.3547969 80.87432321 -60.4423891 84.57788741 -60.51025391 88.28320312 C-60.57232882 91.33241055 -60.69690043 94.36875253 -60.87939453 97.41308594 C-62.39185567 113.81485779 -62.39185567 113.81485779 -56.98330688 128.56573486 C-51.8248854 132.89759314 -45.98538323 135.46381804 -39.74658203 137.8817749 C-35.9899031 139.41124412 -32.7185474 141.44433419 -29.33984375 143.6640625 C-27.72045898 144.66373047 -27.72045898 144.66373047 -26.06835938 145.68359375 C-25.03517578 146.32425781 -24.00199219 146.96492187 -22.9375 147.625 C-20.75924164 148.97155972 -18.58086117 150.31792194 -16.40234375 151.6640625 C-15.47929443 152.23592285 -14.55624512 152.8077832 -13.60522461 153.39697266 C-12.31563843 154.19047119 -12.31563843 154.19047119 -11 155 C-10.20795166 155.58442871 -9.41590332 156.16885742 -8.59985352 156.77099609 C-4.94279188 158.49976389 -2.88459287 158.00755318 1 157 C3.44243152 155.73269071 5.64745798 154.46496283 7.9375 152.97265625 C9.25841918 152.14669922 10.58140659 151.32404228 11.90625 150.50439453 C12.58171875 150.08571106 13.2571875 149.66702759 13.953125 149.23565674 C17.2177702 147.26485694 20.56746351 145.46644943 23.9375 143.68359375 C24.93112549 143.15736923 24.93112549 143.15736923 25.94482422 142.62051392 C27.96155322 141.55631572 29.98064688 140.49670878 32 139.4375 C33.34656296 138.72760945 34.69291738 138.01732319 36.0390625 137.30664062 C36.70470215 136.95550201 37.3703418 136.6043634 38.05615234 136.24258423 C39.38494286 135.54122198 40.71339822 134.83922435 42.04150391 134.13656616 C45.42834415 132.34665293 48.82312196 130.57551057 52.234375 128.83251953 C53.59375295 128.12923747 54.95312805 127.42594991 56.3125 126.72265625 C56.94099854 126.40719345 57.56949707 126.09173065 58.21704102 125.76670837 C61.67826665 123.963609 64.22054727 122.5251232 66 119 C67.16790301 112.90969056 67.06414878 106.94919619 66.921875 100.76953125 C66.89463971 98.81316729 66.86863433 96.8567859 66.84375 94.90039062 C66.80039796 91.84530326 66.74949802 88.79113348 66.67773438 85.73657227 C66.61114266 82.76824671 66.57637854 79.80092673 66.546875 76.83203125 C66.50345978 75.46471611 66.50345978 75.46471611 66.45916748 74.06977844 C66.43993866 69.5112329 66.49609427 67.63991523 69.40332031 63.94799805 C72 62 72 62 74 61 C74 86.41 74 111.82 74 138 C76.97 138.99 76.97 138.99 80 140 C81.80919506 140.97253762 83.58831884 142.0027513 85.3359375 143.08203125 C86.80933594 143.98598633 86.80933594 143.98598633 88.3125 144.90820312 C89.323125 145.53662109 90.33375 146.16503906 91.375 146.8125 C92.37789062 147.42931641 93.38078125 148.04613281 94.4140625 148.68164062 C95.39890625 149.28814453 96.38375 149.89464844 97.3984375 150.51953125 C98.35717773 151.10686035 99.31591797 151.69418945 100.30371094 152.29931641 C101.99681077 153.36723867 103.66658988 154.47409187 105.29785156 155.63427734 C109.25657841 158.50459725 109.25657841 158.50459725 113.9921875 158.62890625 C117.82161005 156.55505014 121.483232 154.32420429 125.125 151.9375 C131.1409214 148.05555335 137.19434975 144.25225297 143.33203125 140.56640625 C143.96026794 140.18854477 144.58850464 139.81068329 145.23577881 139.42137146 C147.75959334 137.90450099 150.2839497 136.38869424 152.8147583 134.8835144 C154.59700916 133.82319131 156.37492201 132.75589238 158.15234375 131.6875 C159.18351318 131.07261719 160.21468262 130.45773438 161.27709961 129.82421875 C163.9723048 128.01855452 165.93630066 126.50007511 168 124 C168.64336058 121.15469038 168.64336058 121.15469038 168.61279297 117.96557617 C168.64476776 116.74718552 168.67674255 115.52879486 168.70968628 114.27348328 C168.72577438 112.30312859 168.72577438 112.30312859 168.7421875 110.29296875 C168.7601334 108.9253959 168.77837732 107.55782693 168.79690552 106.19026184 C168.82985483 103.3245797 168.84527911 100.45936384 168.85107422 97.59350586 C168.86183278 93.93346521 168.93713011 90.27785121 169.02856255 86.61905956 C169.08827897 83.79377069 169.10252467 80.96953591 169.10452652 78.14367104 C169.11695357 76.14312783 169.17581963 74.1430458 169.23556519 72.14335632 C169.26869697 65.3447644 169.26869697 65.3447644 165.9294281 59.70739746 C163.36656886 57.87830967 160.81127545 56.41193325 158 55 C156.83982149 54.30026994 155.68320485 53.59454994 154.5324707 52.87939453 C152.99465942 52.01483643 152.99465942 52.01483643 151.42578125 51.1328125 C150.85836716 50.81150864 150.29095306 50.49020477 149.7063446 50.15916443 C147.91087638 49.1433068 146.11177728 48.13409246 144.3125 47.125 C141.82791275 45.72272141 139.34535497 44.31687821 136.86328125 42.91015625 C136.26315216 42.57050339 135.66302307 42.23085052 135.04470825 41.88090515 C129.17744426 38.55150955 123.41661418 35.06433452 117.6875 31.50390625 C114.49674105 29.70312232 114.49674105 29.70312232 111 29 C108.31066681 30.11996193 108.31066681 30.11996193 105.51171875 31.91015625 C104.4230249 32.56419434 103.33433105 33.21823242 102.21264648 33.89208984 C101.03739459 34.61522997 99.86235021 35.33870745 98.6875 36.0625 C97.48379445 36.79223537 96.27944151 37.52090387 95.07446289 38.24853516 C92.60069482 39.74520032 90.13158714 41.2491489 87.66601562 42.75927734 C84.17819156 44.89452701 80.67667158 47.00599926 77.171875 49.11328125 C75.09336933 50.36655639 73.01522601 51.62043274 70.9375 52.875 C69.96321045 53.46289307 68.9889209 54.05078613 67.98510742 54.65649414 C67.09154541 55.20039795 66.1979834 55.74430176 65.27734375 56.3046875 C64.10546509 57.0160083 64.10546509 57.0160083 62.90991211 57.74169922 C60.8758931 58.98980366 60.8758931 58.98980366 59 61 C58.8001056 63.35225832 58.8001056 63.35225832 58.98266602 66.10131836 C59.02412247 67.16680405 59.06557892 68.23228973 59.10829163 69.33006287 C59.15634445 70.48829056 59.20439728 71.64651825 59.25390625 72.83984375 C59.30672117 75.28960523 59.35406929 77.73948952 59.39648438 80.18945312 C59.46581757 84.05863765 59.56145638 87.91618762 59.75073242 91.78149414 C60.72617156 112.71509071 60.72617156 112.71509071 56.13934326 118.24200439 C51.60654387 121.90777043 46.60893251 124.185886 41.16085815 126.17337036 C38.57880969 127.16112506 36.34252223 128.5440367 34 130 C33.34 130 32.68 130 32 130 C31.93042933 119.80334758 31.8771528 109.60675181 31.84456348 99.4099102 C31.82892068 94.67488077 31.8077077 89.94001397 31.77368164 85.20507812 C31.74103879 80.63391653 31.72313656 76.06291117 31.71536827 71.491642 C31.70983361 69.74935574 31.6990257 68.00707783 31.68280983 66.26485825 C31.66096987 63.82075401 31.65803578 61.3772919 31.65942383 58.93310547 C31.648638 58.21596878 31.63785217 57.49883209 31.6267395 56.75996399 C31.65529829 52.09965068 32.56162632 48.9627409 35 45 C39.86689326 40.20844565 45.71702347 37.10535587 51.625 33.75 C60.38885694 28.71132559 69.07003502 23.56456986 77.69366455 18.29086304 C81.76127343 15.80624741 85.83898831 13.33825898 89.91601562 10.86914062 C91.83337805 9.707066 93.74906106 8.54220993 95.66210938 7.37304688 C97.84787242 6.04297157 100.04529857 4.73585405 102.25 3.4375 C102.83845703 3.07358154 103.42691406 2.70966309 104.03320312 2.3347168 C108.29636732 -0.12532839 112.20496266 -1.10050878 117 0 C121.18835413 1.84893035 125.03452477 4.1784526 128.9375 6.5625 C130.08323907 7.24542225 131.22990459 7.92679234 132.37744141 8.60668945 C135.34619969 10.3711095 138.30224055 12.15576076 141.25567627 13.94567871 C144.01598958 15.61409441 146.78768311 17.26332505 149.55859375 18.9140625 C153.72713872 21.40041716 157.88643818 23.90121618 162.0390625 26.4140625 C165.95130534 28.77821315 169.88196683 31.10478638 173.8359375 33.3984375 C175.20903076 34.20148315 175.20903076 34.20148315 176.60986328 35.02075195 C178.30866535 36.0127933 180.01242513 36.99641823 181.72216797 37.96948242 C187.07491139 41.11309382 191.15685602 44.31371205 194 50 C194.10882223 52.71952707 194.15732453 55.41383576 194.16113281 58.1340332 C194.16609772 58.97485443 194.17106262 59.81567566 194.17617798 60.68197632 C194.1908171 63.47158621 194.19760485 66.26113921 194.203125 69.05078125 C194.20887544 70.98650617 194.21463318 72.92223106 194.22039795 74.85795593 C194.23091321 78.92085028 194.2367523 82.98372481 194.24023438 87.04663086 C194.24571727 92.25213293 194.26973874 97.45737318 194.29820633 102.66279316 C194.31683363 106.66308862 194.32203838 110.66332107 194.32357025 114.66365623 C194.32659759 116.58259702 194.33462883 118.50153668 194.34775543 120.42043495 C194.36481626 123.10641991 194.36293552 125.791766 194.35644531 128.4777832 C194.3656601 129.27017899 194.37487488 130.06257477 194.3843689 130.87898254 C194.34980536 135.44686974 193.81364488 138.36224857 191 142 C187.65534649 145.01479493 184.04436914 147.2661166 180.15234375 149.51171875 C179.591521 149.83736313 179.03069824 150.16300751 178.45288086 150.4985199 C177.24540144 151.19947666 176.03694564 151.89875375 174.8276062 152.59649658 C171.5773422 154.47260764 168.33526247 156.36272517 165.09375 158.25390625 C164.42601059 158.64334412 163.75827118 159.03278198 163.07029724 159.434021 C154.8301529 164.25161994 146.68397929 169.22280067 138.54077148 174.2019043 C136.40097619 175.50896112 134.2571334 176.8094197 132.10888672 178.10253906 C130.01116618 179.38285036 127.93464075 180.69845959 125.87939453 182.04589844 C120.55755647 185.42750955 116.04057783 188.20320269 109.58691406 187.68017578 C103.96145764 186.20107786 99.24400478 183.02615336 94.375 179.9375 C93.19967322 179.21610992 92.02305509 178.49681993 90.84521484 177.77954102 C85.44240506 174.47299723 80.0997844 171.07296767 74.77072144 167.64915466 C73.11045454 166.58325571 71.44710113 165.5221693 69.78369141 164.46118164 C67.71340182 163.13480736 65.6527062 161.79331019 63.60302734 160.43530273 C62.67441895 159.83661377 61.74581055 159.2379248 60.7890625 158.62109375 C59.98162598 158.0892749 59.17418945 157.55745605 58.34228516 157.00952148 C55.37659823 155.73131474 54.0376881 155.99264174 51 157 C48.81162751 158.07913893 48.81162751 158.07913893 46.69140625 159.484375 C45.46284912 160.25986694 45.46284912 160.25986694 44.20947266 161.05102539 C42.89922119 161.89201782 42.89922119 161.89201782 41.5625 162.75 C39.68744291 163.93296527 37.81109671 165.11388921 35.93359375 166.29296875 C34.96276855 166.90317871 33.99194336 167.51338867 32.99169922 168.14208984 C28.08108808 171.19168596 23.10670758 174.13094209 18.125 177.0625 C17.21693604 177.5977832 16.30887207 178.13306641 15.37329102 178.68457031 C13.67401366 179.68386531 11.97067619 180.67629939 10.26269531 181.66064453 C8.87163307 182.48405492 7.50002571 183.34294987 6.16699219 184.25732422 C1.22661782 187.54274519 -3.27616235 188.09744737 -9 187 C-12.82630489 185.40826288 -16.2106512 183.30451376 -19.6875 181.0625 C-21.14337524 180.16289551 -21.14337524 180.16289551 -22.62866211 179.24511719 C-24.56422429 178.04802121 -26.49450638 176.84233832 -28.41894531 175.62744141 C-31.60551893 173.61820004 -34.82718775 171.6797686 -38.0625 169.75 C-38.61260742 169.41774414 -39.16271484 169.08548828 -39.72949219 168.74316406 C-44.15487275 166.07551696 -48.61729399 163.47322078 -53.0859375 160.87890625 C-54.38668298 160.12214871 -55.68738229 159.36531179 -56.98803711 158.60839844 C-58.94407696 157.47013064 -60.90099138 156.3335593 -62.86135864 155.20275879 C-81.28245804 144.57631294 -81.28245804 144.57631294 -85 139 C-85.21555087 136.10814293 -85.31446286 133.31071127 -85.32226562 130.41699219 C-85.33219543 129.54022324 -85.34212524 128.66345428 -85.35235596 127.76011658 C-85.38159657 124.85567089 -85.39520345 121.95144378 -85.40625 119.046875 C-85.41775457 117.02768955 -85.42927002 115.00850417 -85.4407959 112.98931885 C-85.46181608 108.75247174 -85.47350076 104.51570052 -85.48046875 100.27880859 C-85.49142896 94.85685264 -85.53946138 89.43590362 -85.59641266 84.01426315 C-85.63371572 79.84144186 -85.64407927 75.66886168 -85.6471405 71.49588776 C-85.65318505 69.49761713 -85.66921387 67.49935032 -85.69551086 65.50124359 C-85.72973814 62.700253 -85.72584982 59.9017025 -85.71289062 57.10058594 C-85.73132019 56.2795488 -85.74974976 55.45851166 -85.76873779 54.6125946 C-85.69037111 49.18818165 -84.34967789 46.38204706 -80.63304901 42.43332291 C-77.81427983 39.95929646 -74.70878855 38.30455132 -71.375 36.625 C-63.15129903 32.26887256 -55.18305932 27.5470363 -47.25 22.6875 C-44.85212085 21.22174111 -42.4535478 19.75712126 -40.0546875 18.29296875 C-39.16955475 17.75249908 -39.16955475 17.75249908 -38.26654053 17.20111084 C-32.33282452 13.58319035 -26.36036615 10.03176572 -20.375 6.5 C-19.45106445 5.95432373 -18.52712891 5.40864746 -17.57519531 4.84643555 C-11.28568858 1.14265503 -7.44633826 -0.82313668 0 0 Z " fill="currentColor" transform="translate(85,0)"/>
+            </svg>
+        </div>
+        <span class="text-3xl font-bold text-gray-900 dark:text-white">Hexbon</span>
+    </div>
+
+    <!-- Floating Dark Mode Toggle -->
+    <button id="darkModeToggle" class="fixed top-8 right-8 z-50 w-10 h-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg text-gray-900 dark:text-white rounded-full  transition-all duration-300 flex items-center justify-center border border-gray-200/50 dark:border-gray-700/50">
+        <svg id="sunIcon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+
+        <svg id="moonIcon" class="w-8 h-8  dark:hidden" fill="currentColor" viewBox="0 0 512 512" ><path d="M349.852,343.15c-49.875,49.916-131.083,49.916-181,0c-49.916-49.918-49.916-131.125,0-181.021  c13.209-13.187,29.312-23.25,47.832-29.812c5.834-2.042,12.293-0.562,16.625,3.792c4.376,4.375,5.855,10.833,3.793,16.625  c-12.542,35.375-4,73.666,22.25,99.917c26.209,26.228,64.5,34.75,99.916,22.25c5.792-2.062,12.271-0.582,16.625,3.793  c4.376,4.332,5.834,10.812,3.771,16.625C373.143,313.838,363.06,329.941,349.852,343.15z M191.477,184.754  c-37.438,37.438-37.438,98.354,0,135.771c40,40.021,108.125,36.416,143-8.168c-35.959,2.25-71.375-10.729-97.75-37.084  c-26.375-26.354-39.333-61.771-37.084-97.729C196.769,179.796,194.039,182.192,191.477,184.754z" fill="#888888"/></svg>
+    </button>
+    <!-- Main content wrapper -->
+    <main class="flex-1 flex flex-col min-h-0">
+        <!-- Decrypt Data Section -->
+        <section id="decrypt-data-section" class="relative overflow-hidden pt-40 pb-24 sm:pt-28 sm:pb-32 min-h-screen">
+            <!-- Simple Diagonal Gradient Background -->
+            <div class="absolute inset-0 z-0 bg-gradient-to-br from-slate-100 via-slate-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"></div>
+
+            <div class="relative mx-auto max-w-7xl px-6 lg:px-8 z-20">
+                <div class="text-center mb-6">
+                    <h1 class="text-5xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl leading-tight mb-6">
+                        <span class="bg-gradient-to-tr from-purple-700 to-blue-500 bg-clip-text text-transparent">Decrypt Data</span>
+                    </h1>
+                    <p class="text-md leading-8 text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+                        Decrypt your data using your encryption key to access your stored information from Hexbon.
+                    </p>
+                </div>
+
+                <!-- Main Content - Single Column -->
+                <div class="max-w-2xl mx-auto">
+                    <!-- Form -->
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-gray-200/50 dark:border-gray-700/50">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Decryption Form</h2>
+
+                        <!-- Encryption Key Input -->
+                        <div class="mb-6">
+                            <label for="encryptionKey" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                Encryption Key
+                            </label>
+                            <div class="relative">
+                                <input type="password"
+                                       id="encryptionKey"
+                                       class="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                       placeholder="Enter your encryption key..."
+                                       required>
+                                <button type="button"
+                                        id="toggleKeyVisibility"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
+                                    <!-- Eye Icon (show) -->
+                                    <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    <!-- Eye Slash Icon (hide) -->
+                                    <svg id="eyeSlashIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Encrypted JSON Input -->
+                        <div class="mb-6">
+                            <label for="encryptedInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                Encrypted JSON Data
+                            </label>
+                            <textarea id="encryptedInput"
+                                      rows="12"
+                                      class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-mono text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                                      placeholder="Paste your encrypted JSON data here..."
+                                      required></textarea>
+                        </div>
+
+                        <!-- RK (Reference Key) Input -->
+                        <div class="mb-6">
+                            <label for="rkInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                Reference Key (RK)
+                            </label>
+                            <input type="text"
+                                   id="rkInput"
+                                   value="Xn7snvNC0nGngCQkBoVfx8WHFA2NDslAsnZzWsC3LJ2N4TlzKlt9FxiI8YDFz9B7"
+                                   class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-mono text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                   placeholder="Enter your reference key..."
+                                   required>
+                            <div class="mt-2 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+                                <div class="flex items-start">
+                                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                    <div class="text-xs text-amber-700 dark:text-amber-300">
+                                        <strong>Important:</strong> Do not change this value. This reference key must match the one used on hexbon.com for successful decryption.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Decrypt Button -->
+                        <div class="mb-6">
+                            <button type="button"
+                                    id="decryptBtn"
+                                    class="w-full px-6 py-3 bg-gradient-to-tr from-purple-700 to-blue-500 hover:shadow-md text-white rounded-lg transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                                <span id="decryptBtnText">Decrypt Data</span>
+                                <svg id="decryptBtnSpinner" class="hidden w-5 h-5 ml-2 animate-spin inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div id="errorMessage" class="hidden bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+                            <div class="flex items-center">
+                                <span id="errorText">An error occurred during decryption</span>
+                            </div>
+                        </div>
+
+                        <!-- Security Note -->
+                        <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg">
+                            <div class="flex items-start">
+                                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="text-xs text-blue-700 dark:text-blue-300">
+                                    <div class="font-medium mb-1">Dashboard Decryption Tool</div>
+                                    <div>
+                                        - This tool decrypts dashboard JSON data exported from Hexbon.
+                                        <br/>- Enter your dashboard encryption key (reference key) as the password.
+                                        <br/>- All decryption happens locally in your browser.
+                                        <br/>- Your encryption key is never sent to our servers.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Better separation line -->
+            <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-gray-600 to-transparent z-10"></div>
+        </section>
+
+        <!-- Dashboard View Section (Hidden initially) -->
+        <section id="dashboard-section" class="hidden relative flex-1 bg-gradient-to-br from-slate-100 via-slate-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+            <!-- Main Dashboard Content -->
+            <div class="pt-32 pb-12 w-full">
+                <div class="max-w-7xl mx-auto px-6">
+                    <!-- Navigation Buttons - Centered above search -->
+                    <div class="flex justify-center items-center gap-4 mb-8">
+                        <button type="button"
+                                id="backToDecryptBtn"
+                                class="px-6 py-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Back to Decrypt
+                        </button>
+                        <button type="button"
+                                id="showJsonBtn"
+                                class="px-6 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Show JSON
+                        </button>
+                    </div>
+                    <!-- Search Bar -->
+                    <div class="mb-12">
+                        <div class="max-w-2xl mx-auto">
+                            <div class="relative">
+                                <input type="text" id="searchInput" placeholder="Search your encrypted data..."
+                                    class="w-full px-6 py-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-12">
+                                <button id="searchIconBtn" type="button" aria-label="Search" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
+                                    <!-- Search Icon -->
+                                    <svg class="w-6 h-6 search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    <!-- Clear (X) Icon -->
+                                    <svg class="w-6 h-6 clear-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- Search Disclaimer -->
+                            <div class="mt-4">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center">
+                                    <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Search checks card titles, record titles, section titles, and note values. Secret values are never searched.
+                                </p>
+                            </div>
+                            <!-- No Results Message -->
+                            <div id="searchNoResults" class="mt-8 text-lg text-gray-700 dark:text-gray-200 text-center font-medium hidden">
+                                No results found for "<span id="searchQueryEcho"></span>".
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="cardsGrid">
+                        <!-- Cards will be populated here dynamically -->
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyState" class="hidden text-center py-16">
+                        <div class="w-16 h-16 bg-gradient-to-tr from-purple-700 to-blue-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Data Available</h3>
+                        <p class="text-gray-600 dark:text-gray-300">The decrypted data doesn't contain any cards to display.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- JSON View Section (Hidden initially) -->
+        <section id="json-section" class="hidden relative flex-1 bg-gradient-to-br from-slate-100 via-slate-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+            <div class="pt-32 pb-12 w-full">
+                <div class="max-w-7xl mx-auto px-6">
+                    <!-- Navigation Buttons - Centered -->
+                    <div class="flex justify-center items-center gap-4 mb-8">
+                        <button type="button"
+                                id="backToDecryptBtnFromJson"
+                                class="px-6 py-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Back to Decrypt
+                        </button>
+                        <button type="button"
+                                id="showDashboardBtn"
+                                class="px-6 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                            Show Dashboard
+                        </button>
+                    </div>
+
+                    <!-- JSON Content -->
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Decrypted JSON Data</h2>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Raw JSON representation of your decrypted data</p>
+                            </div>
+                            <button type="button"
+                                    id="copyJsonBtn"
+                                    class="px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                Copy JSON
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <textarea id="jsonDisplay"
+                                      rows="30"
+                                      class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-mono text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical"
+                                      readonly
+                                      placeholder="JSON data will appear here..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Card Modal (Initially hidden) -->
+        <div id="cardModal" class="hidden fixed inset-0 z-50">
+            <div class="modal-backdrop absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+            <div class="relative flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex-1 mr-4">
+                            <h2 id="modalCardTitle" class="text-2xl font-bold text-gray-900 dark:text-white"></h2>
+                        </div>
+                        <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" aria-label="Close">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Modal Content -->
+                    <div class="flex h-[75vh]">
+                        <!-- Left Column - Records List -->
+                        <div class="w-80 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-6 overflow-y-auto">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Records</h3>
+                            <div id="recordsList" class="space-y-3">
+                                <!-- Records will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Record Content -->
+                        <div class="flex-1 p-6 overflow-y-auto bg-white dark:bg-gray-900 min-h-[75vh] flex flex-col">
+                            <div id="recordContent" class="flex-1 flex flex-col">
+                                <div class="flex-1 flex items-center justify-center py-16">
+                                    <div class="text-center">
+                                        <div class="w-16 h-16 bg-gradient-to-tr from-purple-700 to-blue-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Select a Record</h3>
+                                        <p class="text-gray-600 dark:text-gray-300">Choose a record from the left panel to view its contents</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-8 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-t border-gray-200/50 dark:border-gray-700/50">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
+                <a href="https://hexbon.com" target="_blank" rel="noopener noreferrer"
+                   class="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-300 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    hexbon.com
+                </a>
+                <a href="https://github.com/Ricu23/hexbon.com" target="_blank" rel="noopener noreferrer"
+                   class="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-300 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    GitHub
+                </a>
+            </div>
+            <div class="mt-4 text-sm text-gray-500 dark:text-gray-500">
+                © 2025 Hexbon. Secure data encryption and storage platform.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Crypto utilities (embedded from the existing app)
+        (function () {
+            'use strict';
+
+            const VERSION = 'v1';
+            const PBKDF2_ITERATIONS = 150000;
+            const PBKDF2_HASH = 'SHA-256';
+            const SALT_BYTES = 16;
+            const IV_BYTES = 12;
+
+            const te = new TextEncoder();
+            const td = new TextDecoder();
+
+            function getRandomBytes(len) {
+                const buf = new Uint8Array(len);
+                crypto.getRandomValues(buf);
+                return buf;
+            }
+
+            function bytesToBase64(bytes) {
+                let binary = '';
+                const len = bytes.byteLength;
+                for (let i = 0; i < len; i++) binary += String.fromCharCode(bytes[i]);
+                return btoa(binary);
+            }
+
+            function base64ToBytes(base64) {
+                const binary = atob(base64);
+                const len = binary.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+                return bytes;
+            }
+
+            async function deriveAesGcmKey(password, saltBytes) {
+                const baseKey = await crypto.subtle.importKey(
+                    'raw',
+                    te.encode(password),
+                    { name: 'PBKDF2' },
+                    false,
+                    ['deriveKey']
+                );
+
+                return crypto.subtle.deriveKey(
+                    {
+                        name: 'PBKDF2',
+                        hash: PBKDF2_HASH,
+                        salt: saltBytes,
+                        iterations: PBKDF2_ITERATIONS,
+                    },
+                    baseKey,
+                    { name: 'AES-GCM', length: 256 },
+                    false,
+                    ['encrypt', 'decrypt']
+                );
+            }
+
+            async function encrypt(plainText, password) {
+                if (!plainText && plainText !== '') throw new Error('Plaintext required');
+                if (!password) throw new Error('Password required');
+
+                const salt = getRandomBytes(SALT_BYTES);
+                const iv = getRandomBytes(IV_BYTES);
+                const key = await deriveAesGcmKey(password, salt);
+
+                const cipherBuf = await crypto.subtle.encrypt(
+                    { name: 'AES-GCM', iv },
+                    key,
+                    te.encode(plainText)
+                );
+
+                const payload = [
+                    VERSION,
+                    bytesToBase64(salt),
+                    bytesToBase64(iv),
+                    bytesToBase64(new Uint8Array(cipherBuf)),
+                ].join(':');
+
+                return payload;
+            }
+
+            async function decrypt(payload, password) {
+                if (!payload) throw new Error('Payload required');
+                if (!password) throw new Error('Password required');
+
+                const parts = String(payload).split(':');
+                if (parts.length !== 4) throw new Error('Invalid payload format');
+                const [ver, saltB64, ivB64, ctB64] = parts;
+                if (ver !== VERSION) throw new Error('Unsupported version');
+
+                const salt = base64ToBytes(saltB64);
+                const iv = base64ToBytes(ivB64);
+                const ct = base64ToBytes(ctB64);
+
+                const key = await deriveAesGcmKey(password, salt);
+                const plainBuf = await crypto.subtle.decrypt(
+                    { name: 'AES-GCM', iv },
+                    key,
+                    ct
+                );
+                return td.decode(plainBuf);
+            }
+
+            async function encryptDashboardJson(jsonData, hexRefKey, rk) {
+                if (!jsonData) throw new Error('JSON data required');
+                if (!hexRefKey) throw new Error('Reference key required');
+                if (!rk) throw new Error('RK salt required');
+
+                const jsonString = typeof jsonData === 'string' ? jsonData : JSON.stringify(jsonData);
+                const combinedKey = hexRefKey + ':' + rk;
+                return await encrypt(jsonString, combinedKey);
+            }
+
+            async function decryptDashboardJson(encryptedPayload, hexRefKey, rk) {
+                if (!encryptedPayload) throw new Error('Encrypted payload required');
+                if (!hexRefKey) throw new Error('Reference key required');
+                if (!rk) throw new Error('RK salt required');
+
+                const combinedKey = hexRefKey + ':' + rk;
+                const decryptedString = await decrypt(encryptedPayload, combinedKey);
+                return JSON.parse(decryptedString);
+            }
+
+            const Api = { encrypt, decrypt, encryptDashboardJson, decryptDashboardJson, VERSION };
+
+            if (typeof window !== 'undefined') {
+                window.CryptoUtil = Api;
+            }
+        })();
+
+        // Main application logic
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const encryptionKeyInput = document.getElementById('encryptionKey');
+            const encryptedInput = document.getElementById('encryptedInput');
+            const rkInput = document.getElementById('rkInput');
+            const decryptBtn = document.getElementById('decryptBtn');
+            const decryptBtnText = document.getElementById('decryptBtnText');
+            const decryptBtnSpinner = document.getElementById('decryptBtnSpinner');
+            const toggleKeyVisibility = document.getElementById('toggleKeyVisibility');
+            const eyeIcon = document.getElementById('eyeIcon');
+            const eyeSlashIcon = document.getElementById('eyeSlashIcon');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+
+            // Sections
+            const decryptDataSection = document.getElementById('decrypt-data-section');
+            const dashboardSection = document.getElementById('dashboard-section');
+            const jsonSection = document.getElementById('json-section');
+            const backToDecryptBtn = document.getElementById('backToDecryptBtn');
+            const showJsonBtn = document.getElementById('showJsonBtn');
+            const backToDecryptBtnFromJson = document.getElementById('backToDecryptBtnFromJson');
+            const showDashboardBtn = document.getElementById('showDashboardBtn');
+            const copyJsonBtn = document.getElementById('copyJsonBtn');
+            const jsonDisplay = document.getElementById('jsonDisplay');
+
+            // Dashboard elements
+            const searchInput = document.getElementById('searchInput');
+            const searchIconBtn = document.getElementById('searchIconBtn');
+            const cardsGrid = document.getElementById('cardsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const cardModal = document.getElementById('cardModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const modalCardTitle = document.getElementById('modalCardTitle');
+            const recordsList = document.getElementById('recordsList');
+            const recordContent = document.getElementById('recordContent');
+            const searchNoResults = document.getElementById('searchNoResults');
+            const searchQueryEcho = document.getElementById('searchQueryEcho');
+
+            // Storage for decrypted data
+            let decryptedData = null;
+
+            // Dark mode toggle
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function() {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    if (isDark) {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('theme', 'light');
+                        document.documentElement.style.backgroundColor = '#ffffff';
+                    } else {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('theme', 'dark');
+                        document.documentElement.style.backgroundColor = '#111827';
+                    }
+
+                    // Ensure icons update immediately after toggle
+                    const sun = document.getElementById('sunIcon');
+                    const moon = document.getElementById('moonIcon');
+                    if (sun && moon) {
+                        const nowDark = document.documentElement.classList.contains('dark');
+                        // Show sun in dark mode, show moon in light mode
+                        sun.classList.toggle('hidden', !nowDark);
+                        moon.classList.toggle('hidden', nowDark);
+                    }
+                });
+
+                // Sync icons on initial load
+                const sunInit = document.getElementById('sunIcon');
+                const moonInit = document.getElementById('moonIcon');
+                if (sunInit && moonInit) {
+                    const isDarkNow = document.documentElement.classList.contains('dark');
+                    // Show sun in dark mode, show moon in light mode
+                    sunInit.classList.toggle('hidden', !isDarkNow);
+                    moonInit.classList.toggle('hidden', isDarkNow);
+                }
+            }
+
+            // Toggle password visibility
+            if (toggleKeyVisibility) {
+                toggleKeyVisibility.addEventListener('click', function() {
+                    const isPassword = encryptionKeyInput.type === 'password';
+                    encryptionKeyInput.type = isPassword ? 'text' : 'password';
+                    eyeIcon.classList.toggle('hidden', !isPassword);
+                    eyeSlashIcon.classList.toggle('hidden', isPassword);
+                });
+            }
+
+            // Utility functions
+            function showError(message) {
+                errorText.textContent = message;
+                errorMessage.classList.remove('hidden');
+            }
+
+            function hideError() {
+                errorMessage.classList.add('hidden');
+            }
+
+            function setLoading(isLoading) {
+                decryptBtn.disabled = isLoading;
+                if (isLoading) {
+                    decryptBtnText.textContent = 'Decrypting...';
+                    decryptBtnSpinner.classList.remove('hidden');
+                } else {
+                    decryptBtnText.textContent = 'Decrypt Data';
+                    decryptBtnSpinner.classList.add('hidden');
+                }
+            }
+
+            async function copyToClipboard(text) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } catch (err) {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        return true;
+                    } catch (err) {
+                        document.body.removeChild(textArea);
+                        return false;
+                    }
+                }
+            }
+
+            function showCopyFeedback() {
+                const originalContent = copyOutputBtn.innerHTML;
+                copyOutputBtn.innerHTML = '<svg class="w-4 h-4 mr-2 inline-block text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Copied!';
+                setTimeout(() => {
+                    copyOutputBtn.innerHTML = originalContent;
+                }, 2000);
+            }
+
+            function getErrorMessage(error) {
+                if (!error) return 'Unknown error';
+                if (typeof error === 'string') return error;
+                if (error.message) return error.message;
+                if (error.toString && error.toString() !== '[object Object]') return error.toString();
+                return 'Decryption failed - possibly incorrect password';
+            }
+
+            // Switch between decrypt, dashboard, and JSON views
+            function showDecryptView() {
+                decryptDataSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+                jsonSection.classList.add('hidden');
+            }
+
+            function showDashboardView() {
+                decryptDataSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                jsonSection.classList.add('hidden');
+            }
+
+            function showJsonView() {
+                decryptDataSection.classList.add('hidden');
+                dashboardSection.classList.add('hidden');
+                jsonSection.classList.remove('hidden');
+            }
+
+            // Main decrypt function
+            async function performDecryption() {
+                hideError();
+                setLoading(true);
+
+                try {
+                    const encryptionKey = encryptionKeyInput.value.trim();
+                    const encryptedData = encryptedInput.value.trim();
+                    const rk = rkInput.value.trim();
+
+                    if (!encryptionKey) {
+                        showError('Please enter your encryption key.');
+                        return;
+                    }
+
+                    if (!encryptedData) {
+                        showError('Please paste your encrypted JSON data.');
+                        return;
+                    }
+
+                    if (!rk) {
+                        showError('Please enter your reference key (RK).');
+                        return;
+                    }
+
+                    if (!window.CryptoUtil) {
+                        showError('Crypto utilities not loaded. Please refresh the page.');
+                        return;
+                    }
+
+                    // Check if the data looks like encrypted format
+                    if (encryptedData.includes(':') && encryptedData.split(':').length === 4) {
+                        try {
+                            const decrypted = await window.CryptoUtil.decryptDashboardJson(encryptedData, encryptionKey, rk);
+
+                            // Store decrypted data for both dashboard and JSON views
+                            decryptedData = decrypted;
+
+                            // Format JSON for JSON view
+                            const formattedJson = JSON.stringify(decrypted, null, 2);
+                            if (jsonDisplay) {
+                                jsonDisplay.value = formattedJson;
+                            }
+
+                            // Go directly to dashboard view
+                            renderDashboard(decryptedData);
+                            showDashboardView();
+
+                        } catch (error) {
+                            showError('Decryption failed');
+                        }
+                    } else {
+                        showError('Invalid encrypted data format.');
+                    }
+
+                } catch (error) {
+                    console.error('Decryption error:', error);
+                    showError('Decryption failed');
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            // Event listeners for decrypt view
+            if (decryptBtn) {
+                decryptBtn.addEventListener('click', performDecryption);
+            }
+
+            // Navigation event listeners
+            if (backToDecryptBtn) {
+                backToDecryptBtn.addEventListener('click', showDecryptView);
+            }
+
+            if (showJsonBtn) {
+                showJsonBtn.addEventListener('click', function() {
+                    if (decryptedData) {
+                        showJsonView();
+                    }
+                });
+            }
+
+            if (backToDecryptBtnFromJson) {
+                backToDecryptBtnFromJson.addEventListener('click', showDecryptView);
+            }
+
+            if (showDashboardBtn) {
+                showDashboardBtn.addEventListener('click', showDashboardView);
+            }
+
+            if (copyJsonBtn) {
+                copyJsonBtn.addEventListener('click', async function() {
+                    if (jsonDisplay && jsonDisplay.value) {
+                        const success = await copyToClipboard(jsonDisplay.value);
+                        if (success) {
+                            const originalContent = copyJsonBtn.innerHTML;
+                            copyJsonBtn.innerHTML = '<svg class="w-4 h-4 mr-2 inline-block text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Copied!';
+                            setTimeout(() => {
+                                copyJsonBtn.innerHTML = originalContent;
+                            }, 2000);
+                        }
+                    }
+                });
+            }
+
+            // Auto-clear data when inputs change
+            [encryptionKeyInput, encryptedInput, rkInput].forEach(function(input) {
+                if (input) {
+                    input.addEventListener('input', function() {
+                        hideError();
+                        decryptedData = null;
+                        if (jsonDisplay) {
+                            jsonDisplay.value = '';
+                        }
+                    });
+                }
+            });
+
+            // Enter key handler for inputs
+            [encryptionKeyInput, encryptedInput, rkInput].forEach(function(input) {
+                if (input) {
+                    input.addEventListener('keydown', function(event) {
+                        if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+                            performDecryption();
+                        }
+                    });
+                }
+            });
+
+            // Dashboard functionality
+            function renderDashboard(data) {
+                // Clear previous content
+                cardsGrid.innerHTML = '';
+
+                // Ensure we have a cards array
+                const cards = Array.isArray(data?.cards) ? data.cards :
+                             (data?.cards && typeof data.cards === 'object') ? Object.values(data.cards) : [];
+
+                if (cards.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    return;
+                } else {
+                    emptyState.classList.add('hidden');
+                }
+
+                // Render cards
+                cards.forEach((card, index) => {
+                    const cardElement = createCardElement(card, index);
+                    cardsGrid.appendChild(cardElement);
+                });
+            }
+
+            function createCardElement(card, index) {
+                const cardContainer = document.createElement('div');
+                cardContainer.className = 'card-container relative';
+                cardContainer.setAttribute('data-card-id', index);
+
+                // Count records and sections
+                const records = Array.isArray(card.records) ? card.records :
+                               (card.records && typeof card.records === 'object') ? Object.values(card.records) : [];
+                const recordCount = records.length;
+                let sectionCount = 0;
+
+                records.forEach(record => {
+                    if (Array.isArray(record.data)) {
+                        sectionCount += record.data.length;
+                    }
+                });
+
+                cardContainer.innerHTML = `
+                    <div class="card-item bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300">
+                        <div class="flex flex-col h-48">
+                            <h3 class="card-title text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center pt-8 line-clamp-2">${card.name || 'Untitled Card'}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 flex-1 text-center card-counts">
+                                <span class="card-counts-records">Contains ${recordCount} record(s)</span>
+                                <span class="block card-counts-sections">and ${sectionCount} section(s)</span>
+                            </p>
+                            <div class="flex items-center justify-center mt-4">
+                                <div class="text-center">
+                                    <span class="text-xs text-gray-400 dark:text-gray-500 block">Last updated</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">${card.updated_at || 'Recently'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Store card data reference
+                cardContainer.__cardDataRef = card;
+
+                // Add click event to open modal
+                cardContainer.addEventListener('click', function() {
+                    openCardModal(card);
+                });
+
+                return cardContainer;
+            }
+
+            function openCardModal(card) {
+                modalCardTitle.textContent = card.name || 'Untitled Card';
+
+                // Clear and populate records list
+                recordsList.innerHTML = '';
+
+                const records = Array.isArray(card.records) ? card.records :
+                               (card.records && typeof card.records === 'object') ? Object.values(card.records) : [];
+
+                if (records.length === 0) {
+                    recordsList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-sm">No records available</p>';
+                } else {
+                    records.forEach((record, index) => {
+                        const recordElement = createRecordElement(record, index);
+                        recordsList.appendChild(recordElement);
+                    });
+                }
+
+                // Show default content
+                showDefaultRecordContent();
+
+                // Show modal
+                cardModal.classList.remove('hidden');
+            }
+
+            function createRecordElement(record, index) {
+                const recordElement = document.createElement('div');
+                recordElement.className = 'record-item p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors';
+                recordElement.innerHTML = `
+                    <h4 class="font-medium text-gray-900 dark:text-white text-sm">${record.title || 'Untitled Record'}</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        ${Array.isArray(record.data) ? record.data.length : 0} section(s)
+                    </p>
+                `;
+
+                recordElement.addEventListener('click', function() {
+                    // Remove active state from other records
+                    recordsList.querySelectorAll('.record-item').forEach(item => {
+                        item.classList.remove('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-200', 'dark:border-purple-700');
+                        item.classList.add('bg-white', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600');
+                    });
+
+                    // Add active state to clicked record
+                    recordElement.classList.remove('bg-white', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600');
+                    recordElement.classList.add('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-200', 'dark:border-purple-700');
+
+                    showRecordContent(record);
+                });
+
+                return recordElement;
+            }
+
+            function showDefaultRecordContent() {
+                recordContent.innerHTML = `
+                    <div class="flex-1 flex items-center justify-center py-16">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-tr from-purple-700 to-blue-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Select a Record</h3>
+                            <p class="text-gray-600 dark:text-gray-300">Choose a record from the left panel to view its contents</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function showRecordContent(record) {
+                const sections = Array.isArray(record.data) ? record.data : [];
+
+                let content = `
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">${record.title || 'Untitled Record'}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">${sections.length} section(s)</p>
+                    </div>
+                `;
+
+                if (sections.length === 0) {
+                    content += `
+                        <div class="text-center py-8">
+                            <p class="text-gray-500 dark:text-gray-400">No sections available in this record.</p>
+                        </div>
+                    `;
+                } else {
+                    content += '<div class="space-y-6">';
+
+                    sections.forEach((section, sectionIndex) => {
+                        const values = Array.isArray(section.values) ? section.values : [];
+
+                        content += `
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-900 dark:text-white mb-3">${section.name || 'Untitled Section'}</h4>
+                        `;
+
+                        if (values.length === 0) {
+                            content += '<p class="text-sm text-gray-500 dark:text-gray-400">No values in this section.</p>';
+                        } else {
+                            content += '<div class="space-y-3">';
+
+                            values.forEach((value, valueIndex) => {
+                                const isSecret = value.type === 'secret';
+                                const displayValue = isSecret ? '••••••••' : (value.value || '');
+                                const iconClass = isSecret ? 'text-red-500' : 'text-blue-500';
+                                const icon = isSecret ?
+                                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>' :
+                                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
+
+                                content += `
+                                    <div class="flex items-start space-x-3">
+                                        <svg class="w-4 h-4 ${iconClass} mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            ${icon}
+                                        </svg>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">${value.label || 'Untitled'}</p>
+                                            <p class="text-sm text-gray-600 dark:text-gray-300 break-all">${displayValue}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+
+                            content += '</div>';
+                        }
+
+                        content += '</div>';
+                    });
+
+                    content += '</div>';
+                }
+
+                recordContent.innerHTML = content;
+            }
+
+            // Modal event listeners
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', function() {
+                    cardModal.classList.add('hidden');
+                });
+            }
+
+            // Close modal when clicking backdrop
+            if (cardModal) {
+                cardModal.addEventListener('click', function(e) {
+                    if (e.target === cardModal || e.target.classList.contains('modal-backdrop')) {
+                        cardModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Search functionality
+            function applySearch(query) {
+                const normalize = (s) => (s || '').toString().toLowerCase();
+                const q = normalize(query);
+                const cards = document.querySelectorAll('.card-container');
+
+                let visibleCount = 0;
+                cards.forEach(card => {
+                    let matched = false;
+
+                    if (!q) {
+                        matched = true;
+                    } else {
+                        // Card title
+                        const cardTitle = normalize(card.querySelector('h3')?.textContent);
+                        if (cardTitle.includes(q)) {
+                            matched = true;
+                        } else {
+                            // Search in card data
+                            const baseData = card.__cardDataRef;
+                            if (baseData) {
+                                // Records as array
+                                let records = [];
+                                if (Array.isArray(baseData.records)) records = baseData.records;
+                                else if (baseData.records && typeof baseData.records === 'object') records = Object.values(baseData.records);
+
+                                // Check record titles, section titles, and note values
+                                for (const rec of records) {
+                                    if (!rec) continue;
+                                    if (normalize(rec.title).includes(q)) { matched = true; break; }
+
+                                    const sections = Array.isArray(rec.data) ? rec.data : [];
+                                    let foundInSections = false;
+                                    for (const section of sections) {
+                                        if (!section) continue;
+                                        if (normalize(section.name).includes(q)) { matched = true; foundInSections = true; break; }
+
+                                        const values = Array.isArray(section.values) ? section.values : [];
+                                        for (const val of values) {
+                                            // Only search note values (type !== 'secret')
+                                            if (val && val.type !== 'secret' && normalize(val.value).includes(q)) { matched = true; foundInSections = true; break; }
+                                        }
+                                        if (foundInSections) break;
+                                    }
+                                    if (matched) break;
+                                }
+                            }
+                        }
+                    }
+
+                    card.style.display = matched ? 'block' : 'none';
+                    if (matched) visibleCount++;
+                });
+
+                // Toggle no-results message
+                if (searchNoResults && searchQueryEcho) {
+                    if (q && visibleCount === 0) {
+                        searchQueryEcho.textContent = searchInput?.value || '';
+                        searchNoResults.classList.remove('hidden');
+                    } else {
+                        searchNoResults.classList.add('hidden');
+                    }
+                }
+            }
+
+            function setSearchIconState(hasQuery) {
+                const searchIcon = searchIconBtn?.querySelector('.search-icon');
+                const clearIcon = searchIconBtn?.querySelector('.clear-icon');
+
+                if (hasQuery) {
+                    searchIcon?.classList.add('hidden');
+                    clearIcon?.classList.remove('hidden');
+                    searchIconBtn?.setAttribute('aria-label', 'Clear search');
+                } else {
+                    clearIcon?.classList.add('hidden');
+                    searchIcon?.classList.remove('hidden');
+                    searchIconBtn?.setAttribute('aria-label', 'Search');
+                }
+            }
+
+            // Search event listeners
+            if (searchInput) {
+                setSearchIconState(Boolean(searchInput.value));
+                applySearch(searchInput.value);
+
+                searchInput.addEventListener('input', function(e) {
+                    const q = e.target.value.toLowerCase();
+                    setSearchIconState(Boolean(q));
+                    applySearch(q);
+                });
+            }
+
+            if (searchIconBtn && searchInput) {
+                searchIconBtn.addEventListener('click', function() {
+                    const q = searchInput.value.toLowerCase();
+                    if (q) {
+                        // Clear search and reset cards
+                        searchInput.value = '';
+                        setSearchIconState(false);
+                        applySearch('');
+                        searchInput.focus();
+                    } else {
+                        // No query: focus input
+                        searchInput.focus();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
