@@ -183,9 +183,6 @@ You can obtain encrypted data from several sources:
 - Contains your encrypted data in the email attachment
 - Use the same encryption key you use on Hexbon
 
-### 3. Manual Backups
-- Any previously saved encrypted exports
-- Shared encrypted data from team members
 
 ## 🚀 Usage Instructions
 
