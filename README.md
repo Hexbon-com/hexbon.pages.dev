@@ -6,13 +6,13 @@ A secure, client-side decryption tool for accessing your Hexbon encrypted data. 
 
 - 🔐 [Overview](#-overview)
 - 🌐 [Live Access](#-live-access)
+- 🔒 [Privacy & Security](#-privacy--security)
 - 🏠 [Local Development](#-local-development)
 - 🛡️ [Security Features](#️-security-features)
 - 🔧 [How It Works](#-how-it-works)
 - 📊 [Data Sources](#-data-sources)
 - 🚀 [Usage Instructions](#-usage-instructions)
 - 🎨 [Features](#-features)
-- 🔒 [Privacy & Security](#-privacy--security)
 - 🛠️ [Technical Stack](#️-technical-stack)
 - 🌐 [Redundancy Strategy](#-redundancy-strategy)
 - 📱 [Browser Compatibility](#-browser-compatibility)
@@ -32,6 +32,35 @@ This tool is available through multiple redundancy hosting options:
 - **Backup**: <a href="https://ricu23.github.io/hexbon.pages.dev" target="_blank">ricu23.github.io/hexbon.pages.dev</a> (GitHub Pages)
 - **Source**: <a href="https://github.com/Ricu23/hexbon.pages.dev" target="_blank">GitHub Repository</a>
 - **Local Development**: [See setup instructions](#-local-development) for running locally
+
+## 🔒 Privacy & Security
+
+### What We Don't Store
+- ❌ Your encryption keys
+- ❌ Your decrypted data
+- ❌ Your search queries
+- ❌ Your usage patterns
+
+### What Happens Locally
+- ✅ All decryption in your browser
+- ✅ Local storage for preferences only
+- ✅ No network requests for decryption
+- ✅ Complete data isolation
+
+### Zero Analytics Policy
+
+This tool contains **absolutely no tracking, analytics, or data collection scripts**. We do not use:
+- ❌ Google Analytics
+- ❌ Microsoft Clarity or Application Insights
+- ❌ Facebook Pixel
+- ❌ Hotjar or other heatmap tools
+- ❌ Mixpanel, Amplitude, or similar analytics
+- ❌ Error tracking services (Sentry, Bugsnag, etc.)
+- ❌ CDN analytics or tracking pixels
+- ❌ Social media tracking widgets
+- ❌ Any third-party scripts that could access your data
+
+**Privacy Guarantee**: The only external resources loaded are Tailwind CSS (for styling) and fonts. No JavaScript analytics libraries or tracking mechanisms are present.
 
 ## 🏠 Local Development
 
@@ -187,36 +216,7 @@ Visit any of the hosted versions:
 - **Auto-Selection**: First record automatically selected for quick access
 - **Persistent Preferences**: Remember your settings across sessions
 
-## 🔒 Privacy & Security
-
-### What We Don't Store
-- ❌ Your encryption keys
-- ❌ Your decrypted data
-- ❌ Your search queries
-- ❌ Your usage patterns
-
-### What Happens Locally
-- ✅ All decryption in your browser
-- ✅ Local storage for preferences only
-- ✅ No network requests for decryption
-- ✅ Complete data isolation
-
-### Zero Analytics Policy
-
-This tool contains **absolutely no tracking, analytics, or data collection scripts**. We do not use:
-- ❌ Google Analytics
-- ❌ Microsoft Clarity or Application Insights
-- ❌ Facebook Pixel
-- ❌ Hotjar or other heatmap tools
-- ❌ Mixpanel, Amplitude, or similar analytics
-- ❌ Error tracking services (Sentry, Bugsnag, etc.)
-- ❌ CDN analytics or tracking pixels
-- ❌ Social media tracking widgets
-- ❌ Any third-party scripts that could access your data
-
-**Privacy Guarantee**: The only external resources loaded are Tailwind CSS (for styling) and fonts. No JavaScript analytics libraries or tracking mechanisms are present.
-
-## 🛠️ Technical Stack
+## ️ Technical Stack
 
 - **Frontend**: Vanilla JavaScript (ES6+)
 - **Styling**: Tailwind CSS
