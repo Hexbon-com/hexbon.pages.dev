@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decrypt Data - Hexbon</title>
-    <link rel="preload" href="/assets/fonts/RobotoCondensed-VariableFont_wght.ttf" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -15,20 +14,6 @@
         }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
-    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="Hexbon" />
-    <link rel="manifest" href="/assets/favicon/site.webmanifest" />
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
-
     <script>
         (function() {
             const theme = localStorage.getItem('theme');
@@ -43,13 +28,6 @@
         })();
     </script>
     <style>
-        @font-face {
-            font-family: 'Roboto Condensed';
-            src: url('/assets/fonts/RobotoCondensed-VariableFont_wght.ttf') format('truetype');
-            font-weight: 100 900;
-            font-display: swap;
-        }
-
         /* Hide sections for toggling between decrypt form and dashboard view */
         .hidden { display: none !important; }
         .line-clamp-2 {
