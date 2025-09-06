@@ -1,6 +1,6 @@
 # Hexbon Decryption Tool
 
-A secure, client-side decryption tool for accessing your Hexbon encrypted data. This tool serves as a redundancy solution to ensure you always have access to your encrypted information, even if the main Hexbon service is unavailable.
+A secure, client-side decryption tool for accessing your <a href="https://hexbon.com" target="_blank">Hexbon.com</a> encrypted data. This tool serves as a redundancy solution to ensure you always have access to your encrypted information, even if the main Hexbon service is unavailable.
 
 ## Table of Contents
 
