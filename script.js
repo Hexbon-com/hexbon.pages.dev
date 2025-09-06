@@ -168,6 +168,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchNoResults = document.getElementById('searchNoResults');
     const searchQueryEcho = document.getElementById('searchQueryEcho');
 
+    // Banner elements
+    const readOnlyBanner = document.getElementById('readOnlyBanner');
+    const dismissBannerBtn = document.getElementById('dismissBannerBtn');
+
     // Storage for decrypted data
     let decryptedData = null;
 
@@ -217,6 +221,43 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Toggle RK section visibility
+    const toggleRkVisibility = document.getElementById('toggleRkVisibility');
+    const rkSection = document.getElementById('rkSection');
+    const rkCaretDownIcon = document.getElementById('rkCaretDownIcon');
+    const rkCaretUpIcon = document.getElementById('rkCaretUpIcon');
+    const rkLabel = document.getElementById('rkLabel');
+
+    function toggleRkSection() {
+        const isHidden = rkSection.classList.contains('hidden');
+        rkSection.classList.toggle('hidden', !isHidden);
+        rkCaretDownIcon.classList.toggle('hidden', isHidden);
+        rkCaretUpIcon.classList.toggle('hidden', !isHidden);
+    }
+
+    if (toggleRkVisibility && rkSection) {
+        toggleRkVisibility.addEventListener('click', toggleRkSection);
+    }
+
+    // Make Reference Key label clickable too
+    if (rkLabel && rkSection) {
+        rkLabel.addEventListener('click', toggleRkSection);
+    }
+
+    // Banner dismiss functionality
+    if (dismissBannerBtn && readOnlyBanner) {
+        dismissBannerBtn.addEventListener('click', function() {
+            readOnlyBanner.style.display = 'none';
+            // Save preference to localStorage so it stays dismissed
+            localStorage.setItem('readOnlyBannerDismissed', 'true');
+        });
+
+        // Check if banner was previously dismissed
+        if (localStorage.getItem('readOnlyBannerDismissed') === 'true') {
+            readOnlyBanner.style.display = 'none';
+        }
+    }
+
     // Utility functions
     function showError(message) {
         errorText.textContent = message;
@@ -256,22 +297,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
         }
-    }
-
-    function showCopyFeedback() {
-        const originalContent = copyOutputBtn.innerHTML;
-        copyOutputBtn.innerHTML = '<svg class="w-4 h-4 mr-2 inline-block text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Copied!';
-        setTimeout(() => {
-            copyOutputBtn.innerHTML = originalContent;
-        }, 2000);
-    }
-
-    function getErrorMessage(error) {
-        if (!error) return 'Unknown error';
-        if (typeof error === 'string') return error;
-        if (error.message) return error.message;
-        if (error.toString && error.toString() !== '[object Object]') return error.toString();
-        return 'Decryption failed - possibly incorrect password';
     }
 
     // Switch between decrypt, dashboard, and JSON views
@@ -391,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     copyJsonBtn.innerHTML = '<svg class="w-4 h-4 mr-2 inline-block text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Copied!';
                     setTimeout(() => {
                         copyJsonBtn.innerHTML = originalContent;
-                    }, 2000);
+                    }, 700);
                 }
             }
         });
@@ -446,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function createCardElement(card, index) {
         const cardContainer = document.createElement('div');
-        cardContainer.className = 'card-container relative';
+        cardContainer.className = 'card-container relative w-72';
         cardContainer.setAttribute('data-card-id', index);
 
         // Count records and sections
@@ -464,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cardContainer.innerHTML = `
             <div class="card-item bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300">
                 <div class="flex flex-col h-48">
-                    <h3 class="card-title text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center pt-8 line-clamp-2">${card.name || 'Untitled Card'}</h3>
+                    <h3 class="card-title text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center pt-8 line-clamp-2">${card.title || card.name || 'Untitled Card'}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-300 flex-1 text-center card-counts">
                         <span class="card-counts-records">Contains ${recordCount} record(s)</span>
                         <span class="block card-counts-sections">and ${sectionCount} section(s)</span>
@@ -491,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function openCardModal(card) {
-        modalCardTitle.textContent = card.name || 'Untitled Card';
+        modalCardTitle.textContent = card.title || card.name || 'Untitled Card';
 
         // Clear and populate records list
         recordsList.innerHTML = '';
@@ -501,15 +526,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (records.length === 0) {
             recordsList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-sm">No records available</p>';
+            // Show default content
+            showDefaultRecordContent();
         } else {
             records.forEach((record, index) => {
                 const recordElement = createRecordElement(record, index);
                 recordsList.appendChild(recordElement);
             });
-        }
 
-        // Show default content
-        showDefaultRecordContent();
+            // Auto-select the first record
+            const firstRecordElement = recordsList.querySelector('.record-item');
+            if (firstRecordElement) {
+                // Add active state to first record
+                firstRecordElement.classList.remove('bg-white', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600');
+                firstRecordElement.classList.add('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-200', 'dark:border-purple-700');
+                // Show content for first record
+                showRecordContent(records[0]);
+            } else {
+                // Show default content if no records
+                showDefaultRecordContent();
+            }
+        }
 
         // Show modal
         cardModal.classList.remove('hidden');
@@ -580,9 +617,12 @@ document.addEventListener('DOMContentLoaded', function() {
             sections.forEach((section, sectionIndex) => {
                 const values = Array.isArray(section.values) ? section.values : [];
 
+                // Use the actual section name from the JSON
+                const sectionTitle = section.name || section.title || 'Untitled Section';
+
                 content += `
                     <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">${section.name || 'Untitled Section'}</h4>
+                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">${sectionTitle}</h4>
                 `;
 
                 if (values.length === 0) {
@@ -592,11 +632,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     values.forEach((value, valueIndex) => {
                         const isSecret = value.type === 'secret';
-                        const displayValue = isSecret ? '••••••••' : (value.value || '');
+                        const actualValue = value.value || '';
+                        const displayValue = isSecret ? '••••••••' : actualValue;
                         const iconClass = isSecret ? 'text-red-500' : 'text-blue-500';
                         const icon = isSecret ?
                             '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>' :
                             '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
+
+                        const uniqueId = `value-${sectionIndex}-${valueIndex}`;
+                        // Label based on the type: "Secret" or "Note"
+                        const itemLabel = isSecret ? 'Secret' : 'Note';
 
                         content += `
                             <div class="flex items-start space-x-3">
@@ -604,8 +649,25 @@ document.addEventListener('DOMContentLoaded', function() {
                                     ${icon}
                                 </svg>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">${value.label || 'Untitled'}</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-300 break-all">${displayValue}</p>
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">${value.label || itemLabel}</p>
+                                        <div class="flex items-center space-x-1">
+                                            ${isSecret ? `
+                                                <button onclick="toggleSecretVisibility('${uniqueId}', '${actualValue.replace(/'/g, "\\'")}', this)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Show/Hide">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path class="eye-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path class="eye-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                </button>
+                                            ` : ''}
+                                            <button onclick="copyToClipboardValue('${actualValue.replace(/'/g, "\\'")}', this)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Copy to clipboard">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path class="copy-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p id="${uniqueId}" class="text-sm text-gray-600 dark:text-gray-300 break-all">${displayValue}</p>
                                 </div>
                             </div>
                         `;
@@ -621,6 +683,74 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         recordContent.innerHTML = content;
+    }
+
+    // Helper function to toggle secret visibility
+    window.toggleSecretVisibility = function(elementId, actualValue, button) {
+        const element = document.getElementById(elementId);
+        const isHidden = element.textContent === '••••••••';
+
+        if (isHidden) {
+            element.textContent = actualValue;
+            button.innerHTML = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                </svg>
+            `;
+            button.title = "Hide";
+        } else {
+            element.textContent = '••••••••';
+            button.innerHTML = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+            `;
+            button.title = "Show";
+        }
+    };
+
+    // Helper function to copy value to clipboard
+    window.copyToClipboardValue = async function(value, button) {
+        try {
+            await navigator.clipboard.writeText(value);
+            showCopySuccessIcon(button);
+        } catch (err) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = value;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showCopySuccessIcon(button);
+            } catch (err) {
+                console.error('Failed to copy to clipboard:', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    };
+
+    // Helper function to show copy success feedback
+    function showCopySuccessIcon(button) {
+        const originalContent = button.innerHTML;
+        button.innerHTML = `
+            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        `;
+        button.title = "Copied!";
+
+        setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.title = "Copy to clipboard";
+        }, 700);
     }
 
     // Modal event listeners
@@ -674,7 +804,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             let foundInSections = false;
                             for (const section of sections) {
                                 if (!section) continue;
-                                if (normalize(section.name).includes(q)) { matched = true; foundInSections = true; break; }
+                                // Check multiple possible section title properties
+                                const sectionTitle = section.name || section.title || section.label || '';
+                                if (normalize(sectionTitle).includes(q)) { matched = true; foundInSections = true; break; }
 
                                 const values = Array.isArray(section.values) ? section.values : [];
                                 for (const val of values) {
