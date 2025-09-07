@@ -292,3 +292,4 @@ This project is licensed under the MIT License. See the source code for full lic
 
 **⚠️ Important**: This tool is designed for data recovery and redundancy. For creating, editing, or managing your encrypted data, please use the main Hexbon platform at <a href="https://hexbon.com" target="_blank">hexbon.com</a>.
 
+.
