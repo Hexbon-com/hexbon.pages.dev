@@ -31,7 +31,7 @@ The Hexbon Decryption Tool is a standalone web application that allows you to de
 This tool is available through multiple redundancy hosting options:
 
 - **Primary**: <a href="https://hexbon.pages.dev" target="_blank">hexbon.pages.dev</a> (Cloudflare Pages)
-- **Backup**: <a href="https://ricu23.github.io/hexbon.pages.dev" target="_blank">ricu23.github.io/hexbon.pages.dev</a> (GitHub Pages)
+- **Backup**: <a href="https://hexbon-com.github.io/hexbon.pages.dev/" target="_blank">hexbon-com.github.io/hexbon.pages.dev</a> (GitHub Pages)
 - **Source**: <a href="https://github.com/Hexbon-com/hexbon.pages.dev" target="_blank">GitHub Repository</a>
 - **Local Development**: [See setup instructions](#-local-development) for running locally
 
@@ -191,7 +191,7 @@ You can obtain encrypted data from several sources:
 ### Step 1: Access the Tool
 Visit any of the hosted versions:
 - <a href="https://hexbon.pages.dev" target="_blank">hexbon.pages.dev</a>
-- <a href="https://ricu23.github.io/hexbon.pages.dev" target="_blank">GitHub Pages Mirror</a>
+- <a href="https://hexbon-com.github.io/hexbon.pages.dev" target="_blank">GitHub Pages Mirror</a>
 
 ### Step 2: Enter Your Credentials
 1. **Encryption Key**: Your personal encryption password from Hexbon
