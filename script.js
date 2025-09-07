@@ -259,6 +259,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Utility functions
+    function escapeHtml(unsafe) {
+        if (unsafe == null) return '';
+        return String(unsafe)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function escapeJavaScript(unsafe) {
+        if (unsafe == null) return '';
+        return String(unsafe)
+            .replace(/\\/g, "\\\\")
+            .replace(/'/g, "\\'")
+            .replace(/"/g, '\\"')
+            .replace(/\n/g, "\\n")
+            .replace(/\r/g, "\\r")
+            .replace(/\t/g, "\\t")
+            .replace(/\f/g, "\\f")
+            .replace(/\v/g, "\\v")
+            .replace(/\0/g, "\\0");
+    }
+
     function showError(message) {
         errorText.textContent = message;
         errorMessage.classList.remove('hidden');
@@ -489,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cardContainer.innerHTML = `
             <div class="card-item bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300">
                 <div class="flex flex-col h-48">
-                    <h3 class="card-title text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center pt-8 line-clamp-2">${card.title || card.name || 'Untitled Card'}</h3>
+                    <h3 class="card-title text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center pt-8 line-clamp-2">${escapeHtml(card.title || card.name || 'Untitled Card')}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-300 flex-1 text-center card-counts">
                         <span class="card-counts-records">Contains ${recordCount} record(s)</span>
                         <span class="block card-counts-sections">and ${sectionCount} section(s)</span>
@@ -497,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="flex items-center justify-center mt-4">
                         <div class="text-center">
                             <span class="text-xs text-gray-400 dark:text-gray-500 block">Last updated</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">${card.updated_at || 'Recently'}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">${escapeHtml(card.updated_at || 'Recently')}</span>
                         </div>
                     </div>
                 </div>
@@ -556,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const recordElement = document.createElement('div');
         recordElement.className = 'record-item p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors';
         recordElement.innerHTML = `
-            <h4 class="font-medium text-gray-900 dark:text-white text-sm">${record.title || 'Untitled Record'}</h4>
+            <h4 class="font-medium text-gray-900 dark:text-white text-sm">${escapeHtml(record.title || 'Untitled Record')}</h4>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 ${Array.isArray(record.data) ? record.data.length : 0} section(s)
             </p>
@@ -600,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let content = `
             <div class="mb-6">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">${record.title || 'Untitled Record'}</h3>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">${escapeHtml(record.title || 'Untitled Record')}</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-400">${sections.length} section(s)</p>
             </div>
         `;
@@ -622,7 +646,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 content += `
                     <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">${sectionTitle}</h4>
+                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">${escapeHtml(sectionTitle)}</h4>
                 `;
 
                 if (values.length === 0) {
@@ -650,24 +674,24 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </svg>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center space-x-2 mb-1">
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white">${value.label || itemLabel}</p>
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">${escapeHtml(value.label || itemLabel)}</p>
                                         <div class="flex items-center space-x-1">
                                             ${isSecret ? `
-                                                <button onclick="toggleSecretVisibility('${uniqueId}', '${actualValue.replace(/'/g, "\\'")}', this)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Show/Hide">
+                                                <button onclick="toggleSecretVisibility('${uniqueId}', '${escapeJavaScript(actualValue)}', this)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Show/Hide">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path class="eye-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                         <path class="eye-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                                     </svg>
                                                 </button>
                                             ` : ''}
-                                            <button onclick="copyToClipboardValue('${actualValue.replace(/'/g, "\\'")}', this)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Copy to clipboard">
+                                            <button onclick="copyToClipboardValue('${escapeJavaScript(actualValue)}', this)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Copy to clipboard">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path class="copy-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                 </svg>
                                             </button>
                                         </div>
                                     </div>
-                                    <p id="${uniqueId}" class="text-sm text-gray-600 dark:text-gray-300 break-all">${displayValue}</p>
+                                    <p id="${uniqueId}" class="text-sm text-gray-600 dark:text-gray-300 break-all">${escapeHtml(displayValue)}</p>
                                 </div>
                             </div>
                         `;
