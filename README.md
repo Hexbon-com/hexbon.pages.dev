@@ -160,7 +160,6 @@ asd
 3. **Salt & IV Extraction**: Extract cryptographic parameters from payload
 4. **PBKDF2 Key Generation**: Derive AES key using 150,000 iterations
 5. **AES-GCM Decryption**: Decrypt and authenticate the data
-6. **JSON Parsing**: Parse decrypted data for dashboard display
 
 ### Reference Key (RK) Information
 
@@ -177,8 +176,8 @@ You can obtain encrypted data from several sources:
 
 ### 1. Hexbon Dashboard Export
 - Log into <a href="https://hexbon.com" target="_blank">Hexbon.com</a>
-- Navigate to Settings → Export Data
-- Download your encrypted JSON backup
+- Navigate to Account Settings → Encrypted Data
+- Copy your encrypted data
 
 ### 2. Email Backups
 - Automated email backups from Hexbon
@@ -195,7 +194,7 @@ Visit any of the hosted versions:
 
 ### Step 2: Enter Your Credentials
 1. **Encryption Key**: Your personal encryption password from Hexbon
-2. **Encrypted Data**: Paste your encrypted JSON data
+2. **Encrypted Data**: Paste your encrypted data
 3. **Reference Key (RK)**: Pre-filled system key (do not modify)
 
 ### Step 3: Decrypt and Browse
@@ -216,7 +215,7 @@ Visit any of the hosted versions:
 - **Read-Only Access**: View and copy data safely
 - **Secret Masking**: Passwords and sensitive data are hidden by default
 - **Copy to Clipboard**: One-click copying of any value
-- **JSON Export**: View raw decrypted JSON data
+- **JSON Export**: View raw decrypted data in JSON format
 
 ### User Experience
 - **Responsive Design**: Works on desktop, tablet, and mobile
@@ -247,9 +246,8 @@ This tool provides multiple layers of redundancy:
 3. **Offline Mode**: Works without internet after initial load
 
 ### Data Recovery
-1. **Multiple Export Formats**: JSON, individual records
-2. **Email Integration**: Automated backup delivery
-3. **Cross-Platform**: Works on any device with a modern browser
+1. **Email Integration**: Automated backup delivery
+2. **Cross-Platform**: Works on any device with a modern browser
 
 ## 📱 Browser Compatibility
 
@@ -291,5 +289,3 @@ This project is licensed under the MIT License. See the source code for full lic
 ---
 
 **⚠️ Important**: This tool is designed for data recovery and redundancy. For creating, editing, or managing your encrypted data, please use the main Hexbon platform at <a href="https://hexbon.com" target="_blank">hexbon.com</a>.
-
-.
