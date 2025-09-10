@@ -729,8 +729,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     content += '<div class="space-y-3">';
 
                     values.forEach((value, valueIndex) => {
-                        const isSecret = value.type === 'secret';
+                        // Only display values that have actual content
                         const actualValue = value.value || '';
+                        if (!actualValue.trim()) {
+                            return; // Skip empty values
+                        }
+
+                        const isSecret = value.type === 'secret';
                         const displayValue = isSecret ? '••••••••' : actualValue;
                         const iconClass = isSecret ? 'text-red-500' : 'text-blue-500';
                         const icon = isSecret ?
