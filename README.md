@@ -31,6 +31,7 @@ The Hexbon Decryption Tool is a standalone web application that allows you to de
 This tool is available through multiple redundancy hosting options:
 
 - **Primary**: <a href="https://hexbon.pages.dev" target="_blank">hexbon.pages.dev</a> (Cloudflare Pages)
+- **Secondary**: <a href="https://hexbon.vercel.app/" target="_blank">hexbon.vercel.app</a> (Vercel)
 - **Backup**: <a href="https://hexbon-com.github.io/hexbon.pages.dev/" target="_blank">hexbon-com.github.io/hexbon.pages.dev</a> (GitHub Pages)
 - **Source**: <a href="https://github.com/Hexbon-com/hexbon.pages.dev" target="_blank">GitHub Repository</a>
 - **Local Development**: [See setup instructions](#-local-development) for running locally
@@ -237,8 +238,9 @@ This tool provides multiple layers of redundancy:
 
 ### Hosting Redundancy
 1. **Cloudflare Pages**: Primary hosting with global CDN
-2. **GitHub Pages**: Secondary hosting with Git-based deployment
-3. **Open Source**: Full source code available for self-hosting
+2. **Vercel**: Additional mirror deployed for redundancy and quick rollback
+3. **GitHub Pages**: Secondary hosting with Git-based deployment
+4. **Open Source**: Full source code available for self-hosting
 
 ### Access Methods
 1. **Direct Web Access**: Through hosted URLs
