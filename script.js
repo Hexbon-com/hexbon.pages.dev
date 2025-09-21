@@ -198,6 +198,11 @@ document.addEventListener('DOMContentLoaded', function() {
         try { sessionStorage.removeItem(STORAGE_KEYS.encryptedData); } catch {}
     }
 
+    // Helper: scroll window to top immediately (no animation)
+    function scrollToTopImmediate() {
+        try { window.scrollTo(0, 0); } catch {}
+    }
+
     // Helper to reset app state, clear session, and navigate back to decrypt page
     function clearAllDataAndGoHome() {
         // Clear stored secrets
@@ -214,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         decryptedData = null;
         hideError();
         showDecryptView();
-        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+        scrollToTopImmediate();
     }
 
     // Safely update button text label while preserving icons
@@ -776,6 +781,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add click event to open modal
         cardContainer.addEventListener('click', function() {
+            // Always scroll to top before navigating into a card
+            scrollToTopImmediate();
             openCardModal(card);
         });
 
@@ -885,6 +892,8 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
 
         recordElement.addEventListener('click', function() {
+            // Always scroll to top before showing record content
+            scrollToTopImmediate();
             // Remove active state from other records
             recordsList.querySelectorAll('.record-item').forEach(item => {
                 item.classList.remove('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-200', 'dark:border-purple-700');
@@ -991,6 +1000,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (newBackToCardsBtn) {
             newBackToCardsBtn.addEventListener('click', function() {
+                // Scroll to top before returning to cards
+                scrollToTopImmediate();
                 cardDetailSection.classList.add('hidden');
                 dashboardSection.classList.remove('hidden');
                 hideMobileBottomBar();
@@ -1034,6 +1045,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (newBackToRecordsBtn) {
             newBackToRecordsBtn.addEventListener('click', function() {
+                // Scroll to top before returning to records list
+                scrollToTopImmediate();
                 // Show records list again
                 if (recordsColumn) recordsColumn.classList.remove('hidden');
                 if (contentColumn) contentColumn.classList.add('hidden');
@@ -1046,6 +1059,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (backToRecordsBtn) {
         backToRecordsBtn.addEventListener('click', function() {
+            // Scroll to top before returning to records list
+            scrollToTopImmediate();
             // Show records list again
             if (recordsColumn) recordsColumn.classList.remove('hidden');
             if (contentColumn) contentColumn.classList.add('hidden');
