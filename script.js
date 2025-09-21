@@ -155,6 +155,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const copyJsonBtn = document.getElementById('copyJsonBtn');
     const jsonDisplay = document.getElementById('jsonDisplay');
 
+    // Mobile JSON bottom bar elements
+    const mobileJsonBottomBar = document.getElementById('mobileJsonBottomBar');
+    const mobileJsonBackToDecrypt = document.getElementById('mobileJsonBackToDecrypt');
+    const mobileJsonShowDashboard = document.getElementById('mobileJsonShowDashboard');
+    const mobileJsonCopy = document.getElementById('mobileJsonCopy');
+    const jsonScrollToTopBtn = document.getElementById('jsonScrollToTopBtn');
+
     // Dashboard elements
     const searchInput = document.getElementById('searchInput');
     const searchIconBtn = document.getElementById('searchIconBtn');
@@ -162,6 +169,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const emptyState = document.getElementById('emptyState');
     const cardModal = document.getElementById('cardModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
+    // New detail section
+    const cardDetailSection = document.getElementById('card-detail-section');
+    const backToDashboardFromCard = document.getElementById('backToDashboardFromCard');
+    const backToCardsFromCard = document.getElementById('backToCardsFromCard');
     const modalCardTitle = document.getElementById('modalCardTitle');
     const recordsList = document.getElementById('recordsList');
     const recordContent = document.getElementById('recordContent');
@@ -174,6 +185,104 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Storage for decrypted data
     let decryptedData = null;
+
+    // Session storage keys
+    const STORAGE_KEYS = {
+        encryptedKey: 'hexbon:encryptedKey', // encryption key encrypted with RK
+        encryptedData: 'hexbon:encryptedData', // the pasted encrypted JSON payload
+    };
+
+    // Helpers to manage session-stored secrets
+    function clearSessionStoredSecrets() {
+        try { sessionStorage.removeItem(STORAGE_KEYS.encryptedKey); } catch {}
+        try { sessionStorage.removeItem(STORAGE_KEYS.encryptedData); } catch {}
+    }
+
+    // Helper to reset app state, clear session, and navigate back to decrypt page
+    function clearAllDataAndGoHome() {
+        // Clear stored secrets
+        clearSessionStoredSecrets();
+
+        // Reset UI inputs and state
+        try {
+            if (encryptionKeyInput) encryptionKeyInput.value = '';
+            if (encryptedInput) encryptedInput.value = '';
+            if (jsonDisplay) jsonDisplay.value = '';
+            if (cardsGrid) cardsGrid.innerHTML = '';
+        } catch {}
+
+        decryptedData = null;
+        hideError();
+        showDecryptView();
+        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+    }
+
+    // Safely update button text label while preserving icons
+    function setButtonLabel(button, newText) {
+        if (!button) return;
+        const spans = button.getElementsByTagName('span');
+        if (spans && spans.length) {
+            spans[spans.length - 1].textContent = newText;
+        } else {
+            // Fallback if there is no span wrapper
+            button.textContent = newText;
+        }
+        button.setAttribute('aria-label', newText);
+        button.setAttribute('title', newText);
+    }
+
+    // Try to auto-decrypt from session on page load (requires RK present in the form)
+    async function attemptAutoDecryptFromSession() {
+        try {
+            if (!window.CryptoUtil) return false; // crypto not ready
+
+            const storedEncKey = sessionStorage.getItem(STORAGE_KEYS.encryptedKey);
+            const storedPayload = sessionStorage.getItem(STORAGE_KEYS.encryptedData);
+            if (!storedEncKey || !storedPayload) return false; // nothing to do
+
+            const rk = (rkInput?.value || '').trim();
+            if (!rk) return false; // cannot decrypt the key without RK; wait until user provides it
+
+            // First, decrypt the encryption key using RK
+            let recoveredKey;
+            try {
+                recoveredKey = await window.CryptoUtil.decrypt(storedEncKey, rk);
+            } catch (e) {
+                // Bad RK or corrupted stored key; wipe
+                clearSessionStoredSecrets();
+                return false;
+            }
+
+            // Validate payload format before attempting decryption
+            if (!(storedPayload.includes(':') && storedPayload.split(':').length === 4)) {
+                clearSessionStoredSecrets();
+                return false;
+            }
+
+            // Decrypt the stored payload into the dashboard JSON
+            try {
+                const data = await window.CryptoUtil.decryptDashboardJson(storedPayload, recoveredKey, rk);
+                decryptedData = data;
+
+                // Populate inputs and views
+                if (encryptionKeyInput) encryptionKeyInput.value = recoveredKey;
+                if (encryptedInput) encryptedInput.value = storedPayload;
+                if (jsonDisplay) jsonDisplay.value = JSON.stringify(data, null, 2);
+
+                renderDashboard(decryptedData);
+                showDashboardView();
+                return true;
+            } catch (e) {
+                // Decryption failed (bad pair of key/payload); wipe session
+                clearSessionStoredSecrets();
+                return false;
+            }
+        } catch (e) {
+            // Any unexpected error: be safe and clear
+            clearSessionStoredSecrets();
+            return false;
+        }
+    }
 
     // Dark mode toggle
     if (darkModeToggle) {
@@ -402,18 +511,33 @@ document.addEventListener('DOMContentLoaded', function() {
         decryptDataSection.classList.remove('hidden');
         dashboardSection.classList.add('hidden');
         jsonSection.classList.add('hidden');
+        hideMobileBottomBar();
+        hideMobileDashboardBottomBar();
+        hideMobileJsonBottomBar();
     }
 
     function showDashboardView() {
         decryptDataSection.classList.add('hidden');
         dashboardSection.classList.remove('hidden');
         jsonSection.classList.add('hidden');
+        hideMobileBottomBar();
+        hideMobileJsonBottomBar();
+        // Show dashboard bottom bar on mobile
+        if (isMobile() && mobileDashboardBottomBar) {
+            mobileDashboardBottomBar.classList.remove('hidden');
+        }
     }
 
     function showJsonView() {
         decryptDataSection.classList.add('hidden');
         dashboardSection.classList.add('hidden');
         jsonSection.classList.remove('hidden');
+        hideMobileBottomBar();
+        hideMobileDashboardBottomBar();
+        // Show mobile JSON bottom bar on mobile
+        if (isMobile() && mobileJsonBottomBar) {
+            mobileJsonBottomBar.classList.remove('hidden');
+        }
     }
 
     // Main decrypt function
@@ -454,6 +578,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Store decrypted data for both dashboard and JSON views
                     decryptedData = decrypted;
 
+                    // On successful decryption, persist to sessionStorage
+                    try {
+                        // Encrypt the user-provided encryption key using RK as the password
+                        const encryptedKeyForSession = await window.CryptoUtil.encrypt(encryptionKey, rk);
+                        sessionStorage.setItem(STORAGE_KEYS.encryptedKey, encryptedKeyForSession);
+                        // Store the encrypted JSON payload exactly as pasted
+                        sessionStorage.setItem(STORAGE_KEYS.encryptedData, encryptedData);
+                    } catch (persistErr) {
+                        console.warn('Unable to persist session data:', persistErr);
+                    }
+
                     // Format JSON for JSON view
                     const formattedJson = JSON.stringify(decrypted, null, 2);
                     if (jsonDisplay) {
@@ -486,7 +621,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Navigation event listeners
     if (backToDecryptBtn) {
-        backToDecryptBtn.addEventListener('click', showDecryptView);
+        setButtonLabel(backToDecryptBtn, 'Clear Data');
+        backToDecryptBtn.addEventListener('click', clearAllDataAndGoHome);
     }
 
     if (showJsonBtn) {
@@ -498,11 +634,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (backToDecryptBtnFromJson) {
-        backToDecryptBtnFromJson.addEventListener('click', showDecryptView);
+        setButtonLabel(backToDecryptBtnFromJson, 'Clear Data');
+        backToDecryptBtnFromJson.addEventListener('click', clearAllDataAndGoHome);
     }
 
     if (showDashboardBtn) {
         showDashboardBtn.addEventListener('click', showDashboardView);
+    }
+
+    // If RK changes and we have session data, try to auto-decrypt
+    if (rkInput) {
+        rkInput.addEventListener('change', attemptAutoDecryptFromSession);
     }
 
     if (copyJsonBtn) {
@@ -515,6 +657,33 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         copyJsonBtn.innerHTML = originalContent;
                     }, 700);
+                }
+            }
+        });
+    }
+
+    // Mobile JSON bottom bar event handlers
+    if (mobileJsonBackToDecrypt) {
+        setButtonLabel(mobileJsonBackToDecrypt, 'Clear Data');
+        mobileJsonBackToDecrypt.addEventListener('click', clearAllDataAndGoHome);
+    }
+
+    if (mobileJsonShowDashboard) {
+        mobileJsonShowDashboard.addEventListener('click', showDashboardView);
+    }
+
+    if (mobileJsonCopy) {
+        mobileJsonCopy.addEventListener('click', async function() {
+            if (jsonDisplay && jsonDisplay.value) {
+                try {
+                    await navigator.clipboard.writeText(jsonDisplay.value);
+                    const originalContent = mobileJsonCopy.innerHTML;
+                    mobileJsonCopy.innerHTML = '<div class="w-8 h-8 flex items-center justify-center mb-1"><svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><span>Copied!</span>';
+                    setTimeout(() => {
+                        mobileJsonCopy.innerHTML = originalContent;
+                    }, 700);
+                } catch (err) {
+                    console.error('Failed to copy JSON:', err);
                 }
             }
         });
@@ -614,6 +783,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function openCardModal(card) {
+        // For backward compatibility: if modal exists, use it. Otherwise open detail section.
+        if (cardDetailSection) {
+            openCardDetail(card);
+            return;
+        }
+
         modalCardTitle.textContent = card.title || card.name || 'Untitled Card';
 
         // Clear and populate records list
@@ -632,27 +807,76 @@ document.addEventListener('DOMContentLoaded', function() {
                 recordsList.appendChild(recordElement);
             });
 
-            // Auto-select the first record
+            // Auto-select the first record on desktop only; on mobile, don't preselect
             const firstRecordElement = recordsList.querySelector('.record-item');
             if (firstRecordElement) {
-                // Add active state to first record
-                firstRecordElement.classList.remove('bg-white', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600');
-                firstRecordElement.classList.add('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-200', 'dark:border-purple-700');
-                // Show content for first record
-                showRecordContent(records[0]);
+                if (!isMobile()) {
+                    // Add active state to first record (desktop)
+                    firstRecordElement.classList.remove('bg-white', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600');
+                    firstRecordElement.classList.add('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-200', 'dark:border-purple-700');
+                    // Show content for first record
+                    showRecordContent(records[0]);
+                } else {
+                    // Mobile: don't auto-select; show default panel content
+                    showDefaultRecordContent();
+                }
             } else {
                 // Show default content if no records
                 showDefaultRecordContent();
             }
         }
 
-        // Show modal
-        cardModal.classList.remove('hidden');
+        // Show modal if present
+        if (cardModal) cardModal.classList.remove('hidden');
+    }
+
+    // New: open card detail as full view
+    function openCardDetail(card) {
+        // Set title/subtitle
+        modalCardTitle.textContent = card.title || card.name || 'Untitled Card';
+        const subtitle = (card.description || card.subtitle || '');
+        const modalCardSubtitle = document.getElementById('modalCardSubtitle');
+        if (modalCardSubtitle) modalCardSubtitle.textContent = subtitle;
+
+        // Populate records list
+        recordsList.innerHTML = '';
+        const records = Array.isArray(card.records) ? card.records :
+                       (card.records && typeof card.records === 'object') ? Object.values(card.records) : [];
+
+        if (records.length === 0) {
+            recordsList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-sm">No records available</p>';
+            showDefaultRecordContent();
+        } else {
+            records.forEach((record, index) => {
+                const recordElement = createRecordElement(record, index);
+                recordsList.appendChild(recordElement);
+            });
+
+            const firstRecordElement = recordsList.querySelector('.record-item');
+            if (firstRecordElement) {
+                if (!isMobile()) {
+                    firstRecordElement.classList.remove('bg-white', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600');
+                    firstRecordElement.classList.add('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-200', 'dark:border-purple-700');
+                    showRecordContent(records[0]);
+                } else {
+                    // Mobile: don't auto-select to avoid pre-focusing a record
+                    showDefaultRecordContent();
+                }
+            } else {
+                showDefaultRecordContent();
+            }
+        }
+
+        // Show detail section and hide dashboard
+        if (cardDetailSection) {
+            dashboardSection.classList.add('hidden');
+            cardDetailSection.classList.remove('hidden');
+        }
     }
 
     function createRecordElement(record, index) {
         const recordElement = document.createElement('div');
-        recordElement.className = 'record-item p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors';
+        recordElement.className = 'record-item p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600';
         recordElement.innerHTML = `
             <h4 class="font-medium text-gray-900 dark:text-white text-sm">${escapeHtml(record.title || 'Untitled Record')}</h4>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -672,9 +896,295 @@ document.addEventListener('DOMContentLoaded', function() {
             recordElement.classList.add('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-200', 'dark:border-purple-700');
 
             showRecordContent(record);
+
+            // Mobile: when a record is clicked, hide the records column and show only content
+            if (isMobile()) {
+                if (recordsColumn) recordsColumn.classList.add('hidden');
+                if (contentColumn) contentColumn.classList.remove('hidden');
+                // Update mobile bottom bar to show "Back to Records"
+                updateMobileBottomBarForRecordView();
+            }
         });
 
         return recordElement;
+    }
+
+    // Mobile helpers: determine small screens
+    function isMobile() {
+        try {
+            return window.innerWidth <= 640; // Tailwind's sm breakpoint
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // Helper: clear selected/highlight classes from all record items
+    function clearRecordSelection() {
+        if (!recordsList) return;
+        recordsList.querySelectorAll('.record-item').forEach(item => {
+            item.classList.remove('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-200', 'dark:border-purple-700');
+            item.classList.add('bg-white', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600');
+        });
+    }
+
+    const recordsColumn = document.getElementById('recordsColumn');
+    const contentColumn = document.getElementById('contentColumn');
+    const backToRecordsBtn = document.getElementById('backToRecordsBtn');
+
+    // Mobile bottom bar elements
+    const mobileBottomBar = document.getElementById('mobileBottomBar');
+    const mobileBottomBarContent = document.getElementById('mobileBottomBarContent');
+    const mobileBackToCards = document.getElementById('mobileBackToCards');
+    const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+
+    // Dashboard mobile bottom bar elements
+    const mobileDashboardBottomBar = document.getElementById('mobileDashboardBottomBar');
+    const mobileDashboardBackToDecrypt = document.getElementById('mobileDashboardBackToDecrypt');
+    const mobileDashboardShowJson = document.getElementById('mobileDashboardShowJson');
+    const dashboardScrollToTopBtn = document.getElementById('dashboardScrollToTopBtn');
+    const showJsonFromCard = document.getElementById('showJsonFromCard');
+
+    // When viewing a card on mobile, show records column first
+    function ensureMobileInitialState() {
+        if (!cardDetailSection) return;
+        if (isMobile()) {
+            // Show only records column
+            if (recordsColumn) recordsColumn.classList.remove('hidden');
+            if (contentColumn) contentColumn.classList.add('hidden');
+            // On mobile, ensure no record appears pre-selected
+            clearRecordSelection();
+            // Show mobile bottom bar with "Back to Cards"
+            if (mobileBottomBar) mobileBottomBar.classList.remove('hidden');
+            updateMobileBottomBarForCardView();
+        } else {
+            // On larger screens, show both
+            if (recordsColumn) recordsColumn.classList.remove('hidden');
+            if (contentColumn) contentColumn.classList.remove('hidden');
+            // Hide mobile bottom bar
+            if (mobileBottomBar) mobileBottomBar.classList.add('hidden');
+        }
+    }
+
+    // Update mobile bottom bar content for card view (showing records list)
+    function updateMobileBottomBarForCardView() {
+        if (!mobileBottomBarContent) return;
+        mobileBottomBarContent.innerHTML = `
+            <div class="flex w-full">
+                <button type="button"
+                        id="mobileBackToCards"
+                        class="w-1/2 flex flex-col items-center justify-center py-2 px-3 text-gray-600 dark:text-gray-400 font-medium text-xs transition-all duration-200 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95">
+                    <div class="w-8 h-8 flex items-center justify-center mb-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </div>
+                    <span>Back to Cards</span>
+                </button>
+                <!-- Placeholder for consistency -->
+                <div class="w-1/2 flex flex-col items-center justify-center py-2 px-3">
+                    <!-- Empty space for visual consistency -->
+                </div>
+            </div>
+        `;
+        // Re-attach event listeners
+        const newBackToCardsBtn = document.getElementById('mobileBackToCards');
+
+        if (newBackToCardsBtn) {
+            newBackToCardsBtn.addEventListener('click', function() {
+                cardDetailSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                hideMobileBottomBar();
+                // Show dashboard bottom bar on mobile
+                if (isMobile() && mobileDashboardBottomBar) {
+                    mobileDashboardBottomBar.classList.remove('hidden');
+                }
+            });
+        }
+
+        if (newScrollToTopBtn) {
+            newScrollToTopBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }
+
+    // Update mobile bottom bar content for record view
+    function updateMobileBottomBarForRecordView() {
+        if (!mobileBottomBarContent) return;
+        mobileBottomBarContent.innerHTML = `
+            <div class="flex w-full">
+                <button type="button"
+                        id="mobileBackToRecords"
+                        class="w-1/2 flex flex-col items-center justify-center py-2 px-3 text-gray-600 dark:text-gray-400 font-medium text-xs transition-all duration-200 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95">
+                    <div class="w-8 h-8 flex items-center justify-center mb-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </div>
+                    <span>Back to Records</span>
+                </button>
+                <!-- Placeholder for consistency -->
+                <div class="w-1/2 flex flex-col items-center justify-center py-2 px-3">
+                    <!-- Empty space for visual consistency -->
+                </div>
+            </div>
+        `;
+        // Re-attach event listeners
+        const newBackToRecordsBtn = document.getElementById('mobileBackToRecords');
+
+        if (newBackToRecordsBtn) {
+            newBackToRecordsBtn.addEventListener('click', function() {
+                // Show records list again
+                if (recordsColumn) recordsColumn.classList.remove('hidden');
+                if (contentColumn) contentColumn.classList.add('hidden');
+                // On mobile, remove any selected styling so nothing is pre-highlighted
+                if (isMobile()) clearRecordSelection();
+                updateMobileBottomBarForCardView();
+            });
+        }
+    }
+
+    if (backToRecordsBtn) {
+        backToRecordsBtn.addEventListener('click', function() {
+            // Show records list again
+            if (recordsColumn) recordsColumn.classList.remove('hidden');
+            if (contentColumn) contentColumn.classList.add('hidden');
+            if (isMobile()) clearRecordSelection();
+            updateMobileBottomBarForCardView();
+        });
+    }
+
+    // Whenever detail opens, ensure mobile initial presentation
+    const originalOpenCardDetail = window.openCardDetail || null;
+    // Wrap openCardDetail to call ensureMobileInitialState if defined locally
+    if (typeof openCardDetail === 'function') {
+        const orig = openCardDetail;
+        openCardDetail = function(card) {
+            orig(card);
+            // After populating records, enforce mobile-first state
+            ensureMobileInitialState();
+        };
+        // expose back to global if needed
+        window.openCardDetail = openCardDetail;
+    }
+
+    // Handle window resize to toggle mobile state while open
+    window.addEventListener('resize', function() {
+        // If detail section visible, adjust columns
+        if (cardDetailSection && !cardDetailSection.classList.contains('hidden')) {
+            ensureMobileInitialState();
+        }
+
+        // If dashboard section visible, adjust bottom bar
+        if (dashboardSection && !dashboardSection.classList.contains('hidden')) {
+            if (isMobile()) {
+                if (mobileDashboardBottomBar) mobileDashboardBottomBar.classList.remove('hidden');
+            } else {
+                hideMobileDashboardBottomBar();
+            }
+        }
+    });
+
+    // Mobile bottom bar button handlers
+    // Note: These are now handled dynamically in updateMobileBottomBarForCardView() and updateMobileBottomBarForRecordView()
+
+    // Wire desktop show JSON button if present
+    if (showJsonFromCard) {
+        showJsonFromCard.addEventListener('click', function() {
+            if (decryptedData) {
+                showJsonView();
+            }
+        });
+    }
+
+    // Scroll to top functionality
+    if (scrollToTopBtn) {
+        scrollToTopBtn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // Dashboard scroll to top functionality
+    if (dashboardScrollToTopBtn) {
+        dashboardScrollToTopBtn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // Dashboard mobile bottom bar button handlers
+    if (mobileDashboardBackToDecrypt) {
+        setButtonLabel(mobileDashboardBackToDecrypt, 'Clear Data');
+        mobileDashboardBackToDecrypt.addEventListener('click', function() {
+            clearAllDataAndGoHome();
+        });
+    }
+
+    if (mobileDashboardShowJson) {
+        mobileDashboardShowJson.addEventListener('click', function() {
+            if (decryptedData) {
+                showJsonView();
+            }
+        });
+    }
+
+    // Show/hide scroll to top button based on scroll position
+    function handleScroll() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        // For card detail view
+        if (cardDetailSection && !cardDetailSection.classList.contains('hidden')) {
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            if (scrollToTopBtn) {
+                if (scrollTop > 300) {
+                    scrollToTopBtn.classList.remove('hidden');
+                } else {
+                    scrollToTopBtn.classList.add('hidden');
+                }
+            }
+        }
+
+        // For dashboard view
+        if (dashboardSection && !dashboardSection.classList.contains('hidden')) {
+            if (dashboardScrollToTopBtn) {
+                if (scrollTop > 300) {
+                    dashboardScrollToTopBtn.classList.remove('hidden');
+                } else {
+                    dashboardScrollToTopBtn.classList.add('hidden');
+                }
+            }
+        }
+    }
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Hide mobile bottom bar when not in card detail view
+    function hideMobileBottomBar() {
+        if (mobileBottomBar) {
+            mobileBottomBar.classList.add('hidden');
+        }
+        if (scrollToTopBtn) {
+            scrollToTopBtn.classList.add('hidden');
+        }
+    }
+
+    // Hide mobile dashboard bottom bar
+    function hideMobileDashboardBottomBar() {
+        if (mobileDashboardBottomBar) {
+            mobileDashboardBottomBar.classList.add('hidden');
+        }
+        if (dashboardScrollToTopBtn) {
+            dashboardScrollToTopBtn.classList.add('hidden');
+        }
+    }
+
+    // Hide mobile JSON bottom bar
+    function hideMobileJsonBottomBar() {
+        if (mobileJsonBottomBar) {
+            mobileJsonBottomBar.classList.add('hidden');
+        }
+        if (jsonScrollToTopBtn) {
+            jsonScrollToTopBtn.classList.add('hidden');
+        }
     }
 
     function showDefaultRecordContent() {
@@ -856,18 +1366,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 700);
     }
 
-    // Modal event listeners
-    if (closeModalBtn) {
+    // Modal fallback event listeners (for legacy modal if present)
+    if (closeModalBtn && cardModal) {
         closeModalBtn.addEventListener('click', function() {
             cardModal.classList.add('hidden');
         });
     }
 
-    // Close modal when clicking backdrop
     if (cardModal) {
         cardModal.addEventListener('click', function(e) {
             if (e.target === cardModal || e.target.classList.contains('modal-backdrop')) {
                 cardModal.classList.add('hidden');
+            }
+        });
+    }
+
+    // Back button from card detail to dashboard
+    if (backToDashboardFromCard && cardDetailSection) {
+        backToDashboardFromCard.addEventListener('click', function() {
+            cardDetailSection.classList.add('hidden');
+            dashboardSection.classList.remove('hidden');
+            hideMobileBottomBar();
+            // Show dashboard bottom bar on mobile
+            if (isMobile() && mobileDashboardBottomBar) {
+                mobileDashboardBottomBar.classList.remove('hidden');
+            }
+        });
+    }
+
+    // Back button from card detail to cards (desktop)
+    if (backToCardsFromCard && cardDetailSection) {
+        backToCardsFromCard.addEventListener('click', function() {
+            cardDetailSection.classList.add('hidden');
+            dashboardSection.classList.remove('hidden');
+            hideMobileBottomBar();
+            // Show dashboard bottom bar on mobile
+            if (isMobile() && mobileDashboardBottomBar) {
+                mobileDashboardBottomBar.classList.remove('hidden');
             }
         });
     }
@@ -981,4 +1516,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Initially hide the decrypt form until we decide what to show
+    if (decryptDataSection) decryptDataSection.classList.add('hidden');
+
+    // Decide initial view: try session auto-decrypt; otherwise reveal the form
+    async function initAutoFlow() {
+        try {
+            const hasStored = !!(sessionStorage.getItem(STORAGE_KEYS.encryptedKey) && sessionStorage.getItem(STORAGE_KEYS.encryptedData));
+            if (hasStored) {
+                const success = await attemptAutoDecryptFromSession();
+                if (success) {
+                    return; // Dashboard shown
+                }
+            }
+        } catch {}
+        // No stored data or couldn't decrypt: show form
+        showDecryptView();
+    }
+
+    // Kick off initial flow (no need to await)
+    initAutoFlow();
 });
