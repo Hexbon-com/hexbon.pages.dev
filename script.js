@@ -128,6 +128,71 @@
     }
 })();
 
+// TOTP Generation Logic
+async function generateTOTP(secretBase32) {
+    const base32Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+    function base32Decode(str) {
+        str = str.replace(/=+$/g, '').toUpperCase();
+        const bytes = [];
+        let bits = 0, value = 0;
+        for (let i = 0; i < str.length; i++) {
+            const idx = base32Alphabet.indexOf(str[i]);
+            if (idx === -1) continue;
+            value = (value << 5) | idx;
+            bits += 5;
+            if (bits >= 8) {
+                bytes.push((value >>> (bits - 8)) & 0xFF);
+                bits -= 8;
+            }
+        }
+        return new Uint8Array(bytes);
+    }
+
+    function intToBytes(num) {
+        const buf = new ArrayBuffer(8);
+        const view = new DataView(buf);
+        const high = Math.floor(num / 0x100000000);
+        const low = num >>> 0;
+        view.setUint32(0, high);
+        view.setUint32(4, low);
+        return new Uint8Array(buf);
+    }
+
+    async function hmacSHA1(key, data) {
+        const k = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+        const sig = await crypto.subtle.sign('HMAC', k, data);
+        return new Uint8Array(sig);
+    }
+
+    function pad(num, size = 6) {
+        return num.toString().padStart(size, '0');
+    }
+
+    try {
+        const secret = base32Decode(secretBase32);
+        const step = 30;
+        const counter = Math.floor(Date.now() / 1000 / step);
+        const hmac = await hmacSHA1(secret, intToBytes(counter));
+        const offset = hmac[hmac.length - 1] & 0x0f;
+        const code = ((hmac[offset] & 0x7f) << 24 |
+                     (hmac[offset + 1] & 0xff) << 16 |
+                     (hmac[offset + 2] & 0xff) << 8 |
+                     (hmac[offset + 3] & 0xff)) % 1_000_000;
+
+        return pad(code);
+    } catch (error) {
+        console.error('TOTP generation error:', error);
+        return 'ERROR';
+    }
+}
+
+function getTOTPTimeRemaining() {
+    const now = Math.floor(Date.now() / 1000);
+    const step = 30;
+    return step - (now % step);
+}
+
 // Main application logic
 document.addEventListener('DOMContentLoaded', function() {
     // DOM elements
@@ -513,6 +578,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Switch between decrypt, dashboard, and JSON views
     function showDecryptView() {
+        stopTOTPUpdates();
         decryptDataSection.classList.remove('hidden');
         dashboardSection.classList.add('hidden');
         jsonSection.classList.add('hidden');
@@ -522,6 +588,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showDashboardView() {
+        stopTOTPUpdates();
         decryptDataSection.classList.add('hidden');
         dashboardSection.classList.remove('hidden');
         jsonSection.classList.add('hidden');
@@ -534,6 +601,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showJsonView() {
+        stopTOTPUpdates();
         decryptDataSection.classList.add('hidden');
         dashboardSection.classList.add('hidden');
         jsonSection.classList.remove('hidden');
@@ -1000,6 +1068,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (newBackToCardsBtn) {
             newBackToCardsBtn.addEventListener('click', function() {
+                // Stop TOTP updates
+                stopTOTPUpdates();
                 // Scroll to top before returning to cards
                 scrollToTopImmediate();
                 cardDetailSection.classList.add('hidden');
@@ -1203,6 +1273,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showDefaultRecordContent() {
+        stopTOTPUpdates();
         recordContent.innerHTML = `
             <div class="flex-1 flex items-center justify-center py-16">
                 <div class="text-center">
@@ -1261,15 +1332,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
 
                         const isSecret = value.type === 'secret';
-                        const displayValue = isSecret ? '••••••••' : actualValue;
-                        const iconClass = isSecret ? 'text-red-500' : 'text-blue-500';
-                        const icon = isSecret ?
-                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>' :
-                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
+                        const isTOTP = value.type === 'totp';
+                        const displayValue = isSecret ? '••••••••' : (isTOTP ? 'Loading...' : actualValue);
+                        const iconClass = isSecret ? 'text-red-500' : (isTOTP ? 'text-green-500' : 'text-blue-500');
+
+                        let icon;
+                        if (isSecret) {
+                            icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>';
+                        } else if (isTOTP) {
+                            icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+                        } else {
+                            icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
+                        }
 
                         const uniqueId = `value-${sectionIndex}-${valueIndex}`;
-                        // Label based on the type: "Secret" or "Note"
-                        const itemLabel = isSecret ? 'Secret' : 'Note';
+                        // Label based on the type: "Secret", "2FA Code", or "Note"
+                        const itemLabel = isSecret ? 'Secret' : (isTOTP ? '2FA Code' : 'Note');
 
                         content += `
                             <div class="flex items-start space-x-3">
@@ -1279,6 +1357,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center space-x-2 mb-1">
                                         <p class="text-sm font-medium text-gray-900 dark:text-white">${escapeHtml(value.label || itemLabel)}</p>
+                                        ${isTOTP ? `
+                                            <span id="${uniqueId}-timer" class="text-xs text-gray-500 dark:text-gray-400 font-mono">30s</span>
+                                        ` : ''}
                                         <div class="flex items-center space-x-1">
                                             ${isSecret ? `
                                                 <button onclick="toggleSecretVisibility('${uniqueId}', '${escapeJavaScript(actualValue)}', this)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Show/Hide">
@@ -1288,14 +1369,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     </svg>
                                                 </button>
                                             ` : ''}
-                                            <button onclick="copyToClipboardValue('${escapeJavaScript(actualValue)}', this)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Copy to clipboard">
+                                            <button onclick="${isTOTP ? `copyTOTPCode('${uniqueId}', this)` : `copyToClipboardValue('${escapeJavaScript(actualValue)}', this)`}" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Copy to clipboard">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path class="copy-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                 </svg>
                                             </button>
                                         </div>
                                     </div>
-                                    <p id="${uniqueId}" class="text-sm text-gray-600 dark:text-gray-300 break-all">${escapeHtml(displayValue)}</p>
+                                    <p id="${uniqueId}" class="text-sm ${isTOTP ? 'text-green-600 dark:text-green-400 font-mono text-lg font-semibold tracking-wider' : 'text-gray-600 dark:text-gray-300'} break-all" ${isTOTP ? `data-totp-secret="${escapeHtml(actualValue)}"` : ''}>${escapeHtml(displayValue)}</p>
                                 </div>
                             </div>
                         `;
@@ -1311,6 +1392,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         recordContent.innerHTML = content;
+
+        // Start TOTP updates if there are any TOTP fields
+        const hasTOTP = recordContent.querySelectorAll('[data-totp-secret]').length > 0;
+        if (hasTOTP) {
+            startTOTPUpdates();
+        }
     }
 
     // Helper function to toggle secret visibility
@@ -1365,6 +1452,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Helper function to copy TOTP code to clipboard
+    window.copyTOTPCode = async function(elementId, button) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        const code = element.textContent;
+        if (code === 'Loading...' || code === 'ERROR') return;
+
+        try {
+            await navigator.clipboard.writeText(code);
+            showCopySuccessIcon(button);
+        } catch (err) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = code;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showCopySuccessIcon(button);
+            } catch (err) {
+                console.error('Failed to copy to clipboard:', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    };
+
     // Helper function to show copy success feedback
     function showCopySuccessIcon(button) {
         const originalContent = button.innerHTML;
@@ -1379,6 +1497,73 @@ document.addEventListener('DOMContentLoaded', function() {
             button.innerHTML = originalContent;
             button.title = "Copy to clipboard";
         }, 700);
+    }
+
+    // TOTP update functionality
+    let totpUpdateInterval = null;
+
+    async function updateAllTOTPCodes() {
+        const totpElements = document.querySelectorAll('[data-totp-secret]');
+
+        for (const element of totpElements) {
+            const secret = element.getAttribute('data-totp-secret');
+            if (secret) {
+                try {
+                    const code = await generateTOTP(secret);
+                    element.textContent = code;
+                } catch (error) {
+                    element.textContent = 'ERROR';
+                    console.error('Failed to generate TOTP:', error);
+                }
+            }
+        }
+    }
+
+    function updateAllTOTPTimers() {
+        const timerElements = document.querySelectorAll('[id$="-timer"]');
+        const remaining = getTOTPTimeRemaining();
+
+        timerElements.forEach(timer => {
+            timer.textContent = `${remaining}s`;
+
+            // Change color based on remaining time
+            if (remaining <= 5) {
+                timer.classList.add('text-red-500', 'dark:text-red-400');
+                timer.classList.remove('text-gray-500', 'dark:text-gray-400');
+            } else {
+                timer.classList.remove('text-red-500', 'dark:text-red-400');
+                timer.classList.add('text-gray-500', 'dark:text-gray-400');
+            }
+        });
+    }
+
+    function startTOTPUpdates() {
+        // Clear any existing interval
+        if (totpUpdateInterval) {
+            clearInterval(totpUpdateInterval);
+        }
+
+        // Initial update
+        updateAllTOTPCodes();
+        updateAllTOTPTimers();
+
+        // Update every second
+        totpUpdateInterval = setInterval(() => {
+            const remaining = getTOTPTimeRemaining();
+            updateAllTOTPTimers();
+
+            // Regenerate codes when timer resets (at 30 seconds)
+            if (remaining === 30) {
+                updateAllTOTPCodes();
+            }
+        }, 1000);
+    }
+
+    function stopTOTPUpdates() {
+        if (totpUpdateInterval) {
+            clearInterval(totpUpdateInterval);
+            totpUpdateInterval = null;
+        }
     }
 
     // Modal fallback event listeners (for legacy modal if present)
@@ -1399,6 +1584,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Back button from card detail to dashboard
     if (backToDashboardFromCard && cardDetailSection) {
         backToDashboardFromCard.addEventListener('click', function() {
+            stopTOTPUpdates();
             cardDetailSection.classList.add('hidden');
             dashboardSection.classList.remove('hidden');
             hideMobileBottomBar();
@@ -1412,6 +1598,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Back button from card detail to cards (desktop)
     if (backToCardsFromCard && cardDetailSection) {
         backToCardsFromCard.addEventListener('click', function() {
+            stopTOTPUpdates();
             cardDetailSection.classList.add('hidden');
             dashboardSection.classList.remove('hidden');
             hideMobileBottomBar();
