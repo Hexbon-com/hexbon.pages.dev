@@ -550,9 +550,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isLoading) {
             decryptBtnText.textContent = 'Decrypting...';
             decryptBtnSpinner.classList.remove('hidden');
+            decryptBtnSpinner.classList.add('inline-block');
         } else {
             decryptBtnText.textContent = 'Decrypt Data';
             decryptBtnSpinner.classList.add('hidden');
+            decryptBtnSpinner.classList.remove('inline-block');
         }
     }
 
@@ -1362,14 +1364,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                         ` : ''}
                                         <div class="flex items-center space-x-1">
                                             ${isSecret ? `
-                                                <button onclick="toggleSecretVisibility('${uniqueId}', '${escapeJavaScript(actualValue)}', this)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Show/Hide">
+                                                <button onclick="toggleSecretVisibility('${uniqueId}', '${escapeJavaScript(actualValue)}', this)" class="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Show/Hide">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path class="eye-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                         <path class="eye-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                                     </svg>
                                                 </button>
                                             ` : ''}
-                                            <button onclick="${isTOTP ? `copyTOTPCode('${uniqueId}', this)` : `copyToClipboardValue('${escapeJavaScript(actualValue)}', this)`}" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Copy to clipboard">
+                                            <button onclick="${isTOTP ? `copyTOTPCode('${uniqueId}', this)` : `copyToClipboardValue('${escapeJavaScript(actualValue)}', this)`}" class="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Copy to clipboard">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path class="copy-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                 </svg>

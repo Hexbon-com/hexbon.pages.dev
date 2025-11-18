@@ -1,0 +1,19 @@
+# Dependencies
+config/node_modules/
+node_modules/
+
+# Build output (keep style.css in root for deployment)
+# style.css is NOT ignored - we want it in git
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
