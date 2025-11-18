@@ -1,0 +1,14 @@
+{
+  "name": "hexbon-decryption-tool",
+  "version": "1.0.0",
+  "description": "Tailwind CSS build configuration for Hexbon decryption tool",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./input.css -o ../style.css --minify",
+    "watch:css": "tailwindcss -i ./input.css -o ../style.css --watch"
+  },
+  "dependencies": {
+    "tailwindcss": "4.1.17",
+    "@tailwindcss/cli": "4.1.17"
+  }
+}
