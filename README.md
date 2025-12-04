@@ -32,8 +32,8 @@ This tool is available through multiple redundancy hosting options:
 
 - **Primary**: <a href="https://hexbon.pages.dev" target="_blank">hexbon.pages.dev</a> (Cloudflare Pages)
 - **Secondary**: <a href="https://hexbon.vercel.app/" target="_blank">hexbon.vercel.app</a> (Vercel)
-- **Backup**: <a href="https://hexbon-com.github.io/hexbon.pages.dev/" target="_blank">hexbon-com.github.io/hexbon.pages.dev</a> (GitHub Pages)
-- **Source**: <a href="https://github.com/Hexbon-com/hexbon.pages.dev" target="_blank">GitHub Repository</a>
+- **Backup**: <a href="https://hexbon-secure.github.io/hexbon.pages.dev/" target="_blank">hexbon-secure.github.io/hexbon.pages.dev</a> (GitHub Pages)
+- **Source**: <a href="https://github.com/hexbon-secure/hexbon.pages.dev" target="_blank">GitHub Repository</a>
 - **Local Development**: [See setup instructions](#-local-development) for running locally
 
 ## 🔒 Privacy & Security
@@ -79,14 +79,14 @@ Running this project locally is incredibly simple - no build tools, dependencies
 #### Option 1: Clone with Git
 
 ```bash
-git clone https://github.com/Hexbon-com/hexbon.pages.dev.git
+git clone https://github.com/hexbon-secure/hexbon.pages.dev.git
 cd hexbon.pages.dev
 # Then open index.html in your browser
 ```
 
 #### Option 2: Download ZIP
 
-**<a href="https://github.com/Hexbon-com/hexbon.pages.dev/archive/refs/heads/main.zip" target="_blank">📥 Download ZIP</a>**
+**<a href="https://github.com/hexbon-secure/hexbon.pages.dev/archive/refs/heads/main.zip" target="_blank">📥 Download ZIP</a>**
 
 ```bash
 # Extract the ZIP file and open index.html in your browser
@@ -191,7 +191,7 @@ You can obtain encrypted data from several sources:
 ### Step 1: Access the Tool
 Visit any of the hosted versions:
 - <a href="https://hexbon.pages.dev" target="_blank">hexbon.pages.dev</a>
-- <a href="https://hexbon-com.github.io/hexbon.pages.dev" target="_blank">GitHub Pages Mirror</a>
+- <a href="https://hexbon-secure.github.io/hexbon.pages.dev" target="_blank">GitHub Pages Mirror</a>
 
 ### Step 2: Enter Your Credentials
 1. **Encryption Key**: Your personal encryption password from Hexbon
@@ -286,7 +286,7 @@ This project is licensed under the MIT License. See the source code for full lic
 
 ### Contact
 - **Main Platform**: <a href="https://hexbon.com" target="_blank">Hexbon.com</a>
-- **GitHub Issues**: <a href="https://github.com/Hexbon-com/hexbon.pages.dev/issues" target="_blank">Report bugs or feature requests</a>
+- **GitHub Issues**: <a href="https://github.com/hexbon-secure/hexbon.pages.dev/issues" target="_blank">Report bugs or feature requests</a>
 
 ---
 
