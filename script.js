@@ -1313,8 +1313,16 @@ document.addEventListener('DOMContentLoaded', function() {
             sections.forEach((section, sectionIndex) => {
                 const values = Array.isArray(section.values) ? section.values : [];
 
+                // Filter out empty values
+                const nonEmptyValues = values.filter(v => v.value && v.value.trim() !== '');
+
                 // Use the actual section name from the JSON
-                const sectionTitle = section.name || section.title || 'Untitled Section';
+                const sectionTitle = section.name || section.title || '';
+
+                // Skip sections with no title and no values
+                if (!sectionTitle && nonEmptyValues.length === 0) {
+                    return;
+                }
 
                 content += `
                     <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
@@ -1335,21 +1343,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         const isSecret = value.type === 'secret';
                         const isTOTP = value.type === 'totp';
+                        const isLink = value.type === 'link';
+                        const isEmail = value.type === 'email';
+                        const isNote = value.type === 'note' || (!isSecret && !isTOTP && !isLink && !isEmail);
                         const displayValue = isSecret ? '••••••••' : (isTOTP ? 'Loading...' : actualValue);
-                        const iconClass = isSecret ? 'text-red-500' : (isTOTP ? 'text-green-500' : 'text-blue-500');
+                        const iconClass = 'text-purple-500';
 
                         let icon;
                         if (isSecret) {
                             icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>';
                         } else if (isTOTP) {
                             icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+                        } else if (isLink) {
+                            icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>';
+                        } else if (isEmail) {
+                            icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>';
                         } else {
                             icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
                         }
 
                         const uniqueId = `value-${sectionIndex}-${valueIndex}`;
-                        // Label based on the type: "Secret", "2FA Code", or "Note"
-                        const itemLabel = isSecret ? 'Secret' : (isTOTP ? '2FA Code' : 'Note');
+                        // Label based on the type: "Secret", "2FA Code", "Link", "Email", or "Note"
+                        const itemLabel = isSecret ? 'Secret' : (isTOTP ? '2FA Code' : (isLink ? 'Link' : (isEmail ? 'Email' : 'Note')));
 
                         content += `
                             <div class="flex items-start space-x-3">
@@ -1376,9 +1391,16 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     <path class="copy-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                                 </svg>
                                             </button>
+                                            ${isLink ? `
+                                                <a href="${escapeHtml(actualValue)}" target="_blank" rel="noopener noreferrer" class="cursor-pointer text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors" title="Open link">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                    </svg>
+                                                </a>
+                                            ` : ''}
                                         </div>
                                     </div>
-                                    <p id="${uniqueId}" class="text-sm ${isTOTP ? 'text-green-600 dark:text-green-400 font-mono text-lg font-semibold tracking-wider' : 'text-gray-600 dark:text-gray-300'} break-all" ${isTOTP ? `data-totp-secret="${escapeHtml(actualValue)}"` : ''}>${escapeHtml(displayValue)}</p>
+                                    <p id="${uniqueId}" class="text-sm ${isTOTP ? 'text-green-600 dark:text-green-400 font-mono text-lg font-semibold tracking-wider' : 'text-gray-600 dark:text-gray-300'} ${isNote ? 'whitespace-pre-wrap' : 'break-all'}" ${isTOTP ? `data-totp-secret="${escapeHtml(actualValue)}"` : ''}>${escapeHtml(displayValue)}</p>
                                 </div>
                             </div>
                         `;
@@ -1652,8 +1674,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                 const values = Array.isArray(section.values) ? section.values : [];
                                 for (const val of values) {
-                                    // Only search note values (type !== 'secret')
-                                    if (val && val.type !== 'secret' && normalize(val.value).includes(q)) { matched = true; foundInSections = true; break; }
+                                    // Search in note, link, and email values (not secret)
+                                    const searchableTypes = ['note', 'link', 'email'];
+                                    if (val && searchableTypes.includes(val.type) && normalize(val.value).includes(q)) { matched = true; foundInSections = true; break; }
                                 }
                                 if (foundInSections) break;
                             }
