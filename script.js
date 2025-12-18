@@ -1334,7 +1334,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     content += '<div class="space-y-3">';
 
+                    /**
+                     * Helper to get the appropriate email/username for a TOTP field at a given index
+                     * Finds the last email/username above the TOTP, or falls back to first in section
+                     * @param {number} totpIndex - The index of the TOTP field in values array
+                     * @returns {string} The email/username to use for the QR code, or empty string as fallback
+                     */
+                    const getEmailOrUsernameForTotpIndex = (totpIndex) => {
+                        let lastEmailOrUsernameAbove = '';
+                        let firstEmailOrUsername = '';
+                        for (let i = 0; i < values.length; i++) {
+                            const v = values[i];
+                            if ((v.type === 'email' || v.type === 'username') && v.value && v.value.trim()) {
+                                if (!firstEmailOrUsername) {
+                                    firstEmailOrUsername = v.value.trim();
+                                }
+                                if (i < totpIndex) {
+                                    lastEmailOrUsernameAbove = v.value.trim();
+                                }
+                            }
+                        }
+                        return lastEmailOrUsernameAbove || firstEmailOrUsername || '';
+                    };
+
                     values.forEach((value, valueIndex) => {
+                        // Calculate the email/username for this specific TOTP field
+                        const totpAccountForQr = getEmailOrUsernameForTotpIndex(valueIndex);
                         // Only display values that have actual content
                         const actualValue = value.value || '';
                         if (!actualValue.trim()) {
@@ -1345,7 +1370,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         const isTOTP = value.type === 'totp';
                         const isLink = value.type === 'link';
                         const isEmail = value.type === 'email';
-                        const isNote = value.type === 'note' || (!isSecret && !isTOTP && !isLink && !isEmail);
+                        const isUsername = value.type === 'username';
+                        const isNote = value.type === 'note' || (!isSecret && !isTOTP && !isLink && !isEmail && !isUsername);
                         const displayValue = isSecret ? '••••••••' : (isTOTP ? 'Loading...' : actualValue);
                         const iconClass = 'text-purple-500';
 
@@ -1358,13 +1384,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>';
                         } else if (isEmail) {
                             icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>';
+                        } else if (isUsername) {
+                            icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>';
                         } else {
                             icon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
                         }
 
                         const uniqueId = `value-${sectionIndex}-${valueIndex}`;
-                        // Label based on the type: "Secret", "2FA Code", "Link", "Email", or "Note"
-                        const itemLabel = isSecret ? 'Secret' : (isTOTP ? '2FA Code' : (isLink ? 'Link' : (isEmail ? 'Email' : 'Note')));
+                        // Label based on the type: "Secret", "2FA Code", "Link", "Email", "Username", or "Note"
+                        const itemLabel = isSecret ? 'Secret' : (isTOTP ? '2FA Code' : (isLink ? 'Link' : (isEmail ? 'Email' : (isUsername ? 'Username' : 'Note'))));
 
                         content += `
                             <div class="flex items-start space-x-3">
@@ -1383,6 +1411,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path class="eye-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                         <path class="eye-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                </button>
+                                            ` : ''}
+                                            ${isTOTP ? `
+                                                <button onclick="showTotpQrModal('${escapeJavaScript(actualValue)}', '${escapeJavaScript(sectionTitle)}', '${escapeJavaScript(totpAccountForQr)}')" class="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Show QR Code">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
                                                     </svg>
                                                 </button>
                                             ` : ''}
@@ -1505,6 +1540,71 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             document.body.removeChild(textArea);
         }
+    };
+
+    /**
+     * Show QR code modal for TOTP secret
+     * Format: otpauth://totp/Issuer:Account?secret=SECRET&issuer=Issuer
+     * Issuer = sectionTitle, Account = firstEmailOrUsername
+     */
+    window.showTotpQrModal = function(secret, issuer, account) {
+        // Use section title as issuer, and first email/username as account
+        const safeIssuer = encodeURIComponent(issuer || 'Hexbon');
+        const safeAccount = encodeURIComponent(account || 'Unknown');
+        const totpUri = `otpauth://totp/${safeIssuer}:${safeAccount}?secret=${encodeURIComponent(secret)}&issuer=${safeIssuer}`;
+
+        // Check if QRCode library is available
+        if (typeof QRCode === 'undefined') {
+            console.error('QRCode library not loaded');
+            alert('QR Code functionality is not available. Please refresh the page.');
+            return;
+        }
+
+        // Create or get the modal
+        let modal = document.getElementById('totpQrModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'totpQrModal';
+            modal.className = 'fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 relative">
+                    <button id="closeTotpQrModal" class="cursor-pointer absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pr-8">TOTP QR Code</h3>
+                    <div id="totpQrContainer" class="flex justify-center bg-white p-4 rounded-lg"></div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Close modal on backdrop click or close button
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+            document.getElementById('closeTotpQrModal').addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        }
+
+        // Clear and generate QR code
+        const container = document.getElementById('totpQrContainer');
+        container.innerHTML = '';
+
+        new QRCode(container, {
+            text: totpUri,
+            width: 256,
+            height: 256,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+        });
+
+        // Show modal
+        modal.classList.remove('hidden');
     };
 
     // Helper function to show copy success feedback
