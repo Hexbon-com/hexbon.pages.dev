@@ -2,8 +2,17 @@
 (function () {
     'use strict';
 
-    const VERSION = 'v1';
-    const PBKDF2_ITERATIONS = 150000;
+    /**
+     * Version configuration for encryption payloads
+     * v1: 150,000 iterations (legacy)
+     * v2: 600,000 iterations (current, OWASP 2025 recommended)
+     */
+    const CURRENT_VERSION = 'v2';
+    const VERSION_CONFIG = {
+        v1: { iterations: 150000 },
+        v2: { iterations: 600000 },
+    };
+
     const PBKDF2_HASH = 'SHA-256';
     const SALT_BYTES = 16;
     const IV_BYTES = 12;
@@ -32,7 +41,14 @@
         return bytes;
     }
 
-    async function deriveAesGcmKey(password, saltBytes) {
+    /**
+     * Derive AES-GCM key from password using PBKDF2
+     * @param {string} password
+     * @param {Uint8Array} saltBytes
+     * @param {number} iterations - Number of PBKDF2 iterations
+     * @returns {Promise<CryptoKey>}
+     */
+    async function deriveAesGcmKey(password, saltBytes, iterations) {
         const baseKey = await crypto.subtle.importKey(
             'raw',
             te.encode(password),
@@ -46,7 +62,7 @@
                 name: 'PBKDF2',
                 hash: PBKDF2_HASH,
                 salt: saltBytes,
-                iterations: PBKDF2_ITERATIONS,
+                iterations: iterations,
             },
             baseKey,
             { name: 'AES-GCM', length: 256 },
@@ -55,13 +71,17 @@
         );
     }
 
+    /**
+     * Encrypt plaintext using v2 (600,000 iterations)
+     */
     async function encrypt(plainText, password) {
         if (!plainText && plainText !== '') throw new Error('Plaintext required');
         if (!password) throw new Error('Password required');
 
+        const iterations = VERSION_CONFIG[CURRENT_VERSION].iterations;
         const salt = getRandomBytes(SALT_BYTES);
         const iv = getRandomBytes(IV_BYTES);
-        const key = await deriveAesGcmKey(password, salt);
+        const key = await deriveAesGcmKey(password, salt, iterations);
 
         const cipherBuf = await crypto.subtle.encrypt(
             { name: 'AES-GCM', iv },
@@ -70,7 +90,7 @@
         );
 
         const payload = [
-            VERSION,
+            CURRENT_VERSION,
             bytesToBase64(salt),
             bytesToBase64(iv),
             bytesToBase64(new Uint8Array(cipherBuf)),
@@ -79,6 +99,9 @@
         return payload;
     }
 
+    /**
+     * Decrypt payload (supports v1 and v2)
+     */
     async function decrypt(payload, password) {
         if (!payload) throw new Error('Payload required');
         if (!password) throw new Error('Password required');
@@ -86,13 +109,17 @@
         const parts = String(payload).split(':');
         if (parts.length !== 4) throw new Error('Invalid payload format');
         const [ver, saltB64, ivB64, ctB64] = parts;
-        if (ver !== VERSION) throw new Error('Unsupported version');
+
+        // Get iterations based on version (supports v1 and v2)
+        const versionConfig = VERSION_CONFIG[ver];
+        if (!versionConfig) throw new Error('Unsupported version: ' + ver);
+        const iterations = versionConfig.iterations;
 
         const salt = base64ToBytes(saltB64);
         const iv = base64ToBytes(ivB64);
         const ct = base64ToBytes(ctB64);
 
-        const key = await deriveAesGcmKey(password, salt);
+        const key = await deriveAesGcmKey(password, salt, iterations);
         const plainBuf = await crypto.subtle.decrypt(
             { name: 'AES-GCM', iv },
             key,
@@ -121,7 +148,14 @@
         return JSON.parse(decryptedString);
     }
 
-    const Api = { encrypt, decrypt, encryptDashboardJson, decryptDashboardJson, VERSION };
+    const Api = {
+        encrypt,
+        decrypt,
+        encryptDashboardJson,
+        decryptDashboardJson,
+        VERSION: CURRENT_VERSION,
+        SUPPORTED_VERSIONS: Object.keys(VERSION_CONFIG),
+    };
 
     if (typeof window !== 'undefined') {
         window.CryptoUtil = Api;

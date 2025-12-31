@@ -113,8 +113,17 @@ cd hexbon-local
 - **Client-Side Decryption**: All cryptographic operations happen in your browser
 - **No Server Communication**: Your keys and data never leave your device
 - **AES-GCM Encryption**: Industry-standard 256-bit encryption
-- **PBKDF2 Key Derivation**: 150,000 iterations with SHA-256
+- **PBKDF2 Key Derivation**: 600,000 iterations with SHA-256 (OWASP 2025 recommended)
+- **Backward Compatible**: Supports both v1 (legacy) and v2 (current) encrypted data
 - **Zero-Knowledge Architecture**: We cannot access your decrypted data
+
+### 🔄 Encryption Version Update
+
+**We've upgraded to v2 encryption with 600,000 PBKDF2 iterations** (up from 150,000 in v1), following OWASP 2025 security guidelines.
+
+- ✅ **Backward Compatible**: This tool can decrypt both v1 and v2 encrypted data
+- ✅ **New Encryptions**: All new data is encrypted with v2 (stronger security)
+- 💡 **Recommendation**: If you haven't modified your stored data recently, we recommend making a small change on [hexbon.com](https://hexbon.com) to re-encrypt your data with the new v2 standard
 
 ## 🔧 How It Works
 
@@ -123,14 +132,18 @@ cd hexbon-local
 The tool uses the following cryptographic parameters:
 
 ```javascript
-// Encryption Configuration
-VERSION: 'v1'
+// Encryption Configuration (v2 - Current)
+VERSION: 'v2'
 ALGORITHM: 'AES-GCM'
 KEY_SIZE: 256 bits
-PBKDF2_ITERATIONS: 150,000
+PBKDF2_ITERATIONS: 600,000  // OWASP 2025 recommended
 PBKDF2_HASH: 'SHA-256'
 SALT_BYTES: 16
 IV_BYTES: 12
+
+// Legacy Configuration (v1 - Still Supported)
+VERSION: 'v1'
+PBKDF2_ITERATIONS: 150,000
 ```
 
 ### Data Format
@@ -139,6 +152,8 @@ Encrypted data follows this format:
 ```
 version:base64_salt:base64_iv:base64_ciphertext
 ```
+
+Where `version` is either `v1` (legacy, 150,000 iterations) or `v2` (current, 600,000 iterations).
 
 **Example:**
 
@@ -156,11 +171,12 @@ asd
 
 ### Decryption Process
 
-1. **Input Validation**: Verify encrypted data format
-2. **Key Derivation**: Combine your encryption key with reference key (RK)
-3. **Salt & IV Extraction**: Extract cryptographic parameters from payload
-4. **PBKDF2 Key Generation**: Derive AES key using 150,000 iterations
-5. **AES-GCM Decryption**: Decrypt and authenticate the data
+1. **Input Validation**: Verify encrypted data format (v1 or v2)
+2. **Version Detection**: Automatically detect encryption version from payload
+3. **Key Derivation**: Combine your encryption key with reference key (RK)
+4. **Salt & IV Extraction**: Extract cryptographic parameters from payload
+5. **PBKDF2 Key Generation**: Derive AES key using version-appropriate iterations (150,000 for v1, 600,000 for v2)
+6. **AES-GCM Decryption**: Decrypt and authenticate the data
 
 ### Reference Key (RK) Information
 
